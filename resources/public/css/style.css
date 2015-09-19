@@ -1,0 +1,13 @@
+html,
+body {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  height: 100%;
+}
+.search-verticals { margin-top: 5px; }
+.search-results   { margin-top: 35px; }
+
+@media (max-width: 991px) {
+  [class*="col-"]:not(:first-child){
+      margin-top: 5px;
+  }
+}
