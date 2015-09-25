@@ -1,13 +1,29 @@
 (ns keywordstreamer.dispatcher
   (:require [clojure.core.async :as async :refer [>! alt! go-loop]]
             [com.stuartsierra.component :as component]
-            [taoensso.timbre :as timbre :refer [info]]))
+            [taoensso.timbre :as timbre :refer [info]]
+            [keywordstreamer.utils :refer [char-range current-year]]))
 
+;; TODO Skip permutations for yahoo
+(def permutations
+  (flatten
+   [(range 1 10) (char-range \a \z) (current-year)]))
+
+(defn search-chans [m]
+  (let [searches (->> (:searches m)
+                      (filter (comp true? val))
+                      keys)]
+    (-> {:web      [:google :bing :yahoo]
+         :video    [:youtube]
+         :shopping [:amazon]
+         :social   []}
+        (select-keys searches)
+        vals
+        flatten)))
 
 (defn start-dispatching
-  [{:keys [dispatch shutdown reap]}]
+  [{:keys [dispatch shutdown] :as channels}]
   (go-loop []
-    (println "go loop")
     (alt!
       shutdown
       ([_] (info "shutting down"))
@@ -15,7 +31,12 @@
       dispatch
       ([data]
        (when data
-         (>! reap data))
+         (doseq [sc (search-chans data)]
+           (let [searches (conj (map (partial str (:query data) " ") permutations)
+                                (:query data))
+                 chan     (sc channels)]
+             (doseq [s searches]
+               (>! chan (assoc data :query s))))))
        (recur))
       :priority true)))
 

@@ -13,9 +13,11 @@
                  [com.taoensso/timbre "4.1.1"]
                  [jetty/javax.servlet "5.1.12"]
                  [compojure "1.4.0"]
+                 [clj-http "2.0.0"] ; Need proxy support for the client
                  [http-kit "2.1.19"]
                  [reagent "0.5.1"]
-                 [re-frame "0.4.1"]]
+                 [re-frame "0.4.1"]
+                 [ring/ring-anti-forgery "1.0.0"]]
 
   :profiles {:dev {:plugins [[lein-cljsbuild "1.0.6"]
                              [lein-figwheel "0.3.7"]

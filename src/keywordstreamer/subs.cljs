@@ -17,9 +17,14 @@
    (reaction (:query @db))))
 
 (register-sub
- :streaming
+ :streaming?
  (fn [db _]
-   (reaction (:streaming @db))))
+   (reaction (:streaming? @db))))
+
+(register-sub
+ :ready?
+ (fn [db _]
+   (reaction (:ready? @db))))
 
 (register-sub
  :searches

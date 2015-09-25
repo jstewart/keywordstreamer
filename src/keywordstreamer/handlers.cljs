@@ -1,7 +1,10 @@
 (ns keywordstreamer.handlers
   (:require
+   [cljs.core.async :refer [>!]]
    [keywordstreamer.db    :refer [default-value]]
-   [re-frame.core :refer [register-handler path trim-v after]]))
+   [keywordstreamer.websocket :refer [event-chan]]
+   [re-frame.core         :refer [register-handler path trim-v after]])
+  (:require-macros [cljs.core.async.macros :refer [go]]))
 
 ;; Gross. Isn't there something better in clojurescript?
 (defn index-of [coll pred]
@@ -19,10 +22,25 @@
 (defn toggle-all [coll selection]
   (map #(assoc % :selected selection) coll))
 
+(defmulti handle-ws-event
+  (fn [db [[op arg] evt]] op))
+
+(defmethod handle-ws-event :default [db [[op arg] evt]]
+  (.log js/console (str "unhandled event: " op))
+  db)
+
+(defmethod handle-ws-event :chsk/state [db [[op arg] evt]]
+  (assoc db :ready? (:first-open? arg)))
+
 (register-handler
  :initialize-db
  (fn [_ _]
    default-value))
+
+(register-handler
+ :ws-event
+ trim-v
+ handle-ws-event)
 
 (register-handler
  :query-changed
@@ -32,8 +50,11 @@
 (register-handler
  :submit
  (fn [db _]
-   (assoc db :streaming
-          (not (:streaming db)))))
+   (let [{:keys [query searches streaming?]} db]
+     (when-not streaming?
+       (go (>! event-chan
+               [:ks/search {:query query :searches searches}])))
+     (assoc db :streaming? (not streaming?)))))
 
 (register-handler
  :toggle-selection

@@ -9,7 +9,7 @@
 (defn provider-workers [channels provider]
   [provider (doall
              (map (partial start-worker provider channels)
-                  (range 0 2)))])
+                  (range 0 4)))])
 
 (defn start-workers
   [channels]

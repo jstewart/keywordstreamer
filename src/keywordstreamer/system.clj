@@ -1,7 +1,7 @@
 (ns keywordstreamer.system
-  (require [clojure.core.async :refer [chan close!]]
-           [com.stuartsierra.component :as component]
+  (require [com.stuartsierra.component :as component]
            [taoensso.timbre :as timbre :refer [info]]
+           [keywordstreamer.channels :as channels]
            [keywordstreamer.dispatcher :as dispatcher]
            [keywordstreamer.reaper :as reaper]
            [keywordstreamer.searcher :as searcher]
@@ -9,42 +9,6 @@
            [keywordstreamer.utils :refer [on-shutdown]]
            )
   (:gen-class))
-
-(defrecord Channels [dispatch reap
-                     events shutdown
-                     google bing yahooo
-                     amazon facebook
-                     pinterest youtube]
-  component/Lifecycle
-  (start [this]
-    (assoc this
-           :dispatch  (chan)
-           :reap      (chan)
-           :events    (chan)
-           :google    (chan)
-           :bing      (chan)
-           :yahoo     (chan)
-           :amazon    (chan)
-           :facebook  (chan)
-           :pinterest (chan)
-           :youtube   (chan)
-           :shutdown  (chan)))
-  (stop [this]
-    (close! dispatch)
-    (close! reap)
-    (close! shutdown)
-    (assoc this
-           :dispatch  nil
-           :reap      nil
-           :events    nil
-           :google    nil
-           :bing      nil
-           :yahoo     nil
-           :amazon    nil
-           :facebook  nil
-           :pinterest nil
-           :youtube   nil
-           :shutdown  nil)))
 
 (defrecord KeywordStreamer []
   component/Lifecycle
@@ -57,8 +21,8 @@
 
 (defn create-system [port]
   (map->KeywordStreamer
-   {:channels   (map->Channels {})
-    :server     (component/using (server/new-server port) ; How will channels communicate?
+   {:channels   (channels/new-channels)
+    :server     (component/using (server/new-server port)
                                  [:channels])
     :dispatcher (component/using (dispatcher/new-dispatcher)
                                  [:channels])

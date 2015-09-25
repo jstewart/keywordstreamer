@@ -13,12 +13,14 @@
                       :class "form-control"})])))
 
 (defn search-button []
-  (let [streaming (subscribe [:streaming])
+  (let [streaming (subscribe [:streaming?])
+        ready     (subscribe [:ready?])
         label     (if @streaming "Stop" "Start")
         span      (if @streaming :span.glyphicon.glyphicon-stop
                       :span.glyphicon.glyphicon-play)]
     (fn [])
     [:button#search-keywords {:type "submit"
+                              :disabled (not @ready)
                               :on-click #(dispatch [:submit])
                               :class "btn btn-primary"}
      [span
