@@ -7,7 +7,7 @@
            [keywordstreamer.searcher :as searcher]
            [keywordstreamer.server :as server]
            [keywordstreamer.utils :refer [on-shutdown]]
-           )
+           [keywordstreamer.ws-events :as ws-events])
   (:gen-class))
 
 (defrecord KeywordStreamer []
@@ -20,19 +20,21 @@
     (component/stop-system this)))
 
 (defn create-system [port]
-  (map->KeywordStreamer
-   {:channels   (channels/new-channels)
-    :server     (component/using (server/new-server port)
-                                 [:channels])
-    :dispatcher (component/using (dispatcher/new-dispatcher)
-                                 [:channels])
-    :searcher   (component/using (searcher/new-searcher)
-                                 [:channels])
-    :reaper     (component/using (reaper/new-reaper)
-                                 [:channels])}))
+  (component/system-map
+   :server     (server/new-server port)
+   :channels   (component/using (channels/new-channels)
+                                [:server])
+   :dispatcher (component/using (dispatcher/new-dispatcher)
+                                [:channels])
+   :searcher   (component/using (searcher/new-searcher)
+                                [:channels])
+   :ws-events  (component/using (ws-events/new-ws-events)
+                                [:channels])
+   :reaper     (component/using (reaper/new-reaper)
+                                [:channels :server])))
 
 (defn -main [& args]
-  (let [system (.start (create-system 9009))]
+  (let [system (component/start (create-system 9009))]
     (on-shutdown
      (info "interrupted! shutting down")
      (component/stop system))))

@@ -12,14 +12,6 @@
   (use ring.middleware.anti-forgery
        ring.middleware.session))
 
-(defn event-loop
-  "Handle inbound events"
-  [ch-chsk]
-  (go-loop [{:keys [client-id event] :as event-map} (<! ch-chsk)]
-    (info (str client-id ":" event))
-    ;; (thread (handle-event evt req))
-    (recur (<! ch-chsk))))
-
 (defn make-app-routes
   [{:keys [ajax-post-fn ajax-get-or-ws-handshake-fn]}]
   (defroutes app-routes
@@ -36,9 +28,12 @@
        wrap-session
        handler/api))
 
+(defn uid-fn
+  [ring-req]
+  (:client-id ring-req))
+
 (defn- start-server [handler port ws]
   (let [server (run-server (make-handler ws) {:port port})]
-    (event-loop (:ch-recv ws))
     (info (str "Started server on localhost:" port))
     server))
 
@@ -49,7 +44,8 @@
 (defrecord Server [port]
   component/Lifecycle
   (start [this]
-    (let [ws      (sente/make-channel-socket! sente-web-server-adapter {})
+    (let [ws      (sente/make-channel-socket! sente-web-server-adapter
+                                              {:user-id-fn uid-fn})
           handler (make-handler ws)]
       (assoc this
              :httpkit (start-server handler port ws)

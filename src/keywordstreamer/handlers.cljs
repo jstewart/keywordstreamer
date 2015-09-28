@@ -1,10 +1,25 @@
 (ns keywordstreamer.handlers
-  (:require
-   [cljs.core.async :refer [>!]]
-   [keywordstreamer.db    :refer [default-value]]
-   [keywordstreamer.websocket :refer [event-chan]]
-   [re-frame.core         :refer [register-handler path trim-v after]])
+  (:require [cljs.core.async :refer [>!]]
+            [keywordstreamer.db    :refer [default-value]]
+            [keywordstreamer.websocket :refer [event-chan]]
+            [re-frame.core         :refer [register-handler path trim-v after]])
   (:require-macros [cljs.core.async.macros :refer [go]]))
+
+;; taken from medley.core
+(defn distinct-by
+  "Returns a lazy sequence of the elements of coll, removing any elements that
+  return duplicate values when passed to a function f."
+  [f coll]
+  (let [step (fn step [xs seen]
+               (lazy-seq
+                ((fn [[x :as xs] seen]
+                   (when-let [s (seq xs)]
+                     (let [fx (f x)]
+                       (if (contains? seen fx)
+                         (recur (rest s) seen)
+                         (cons x (step (rest s) (conj seen fx)))))))
+                 xs seen)))]
+    (step coll #{})))
 
 ;; Gross. Isn't there something better in clojurescript?
 (defn index-of [coll pred]
@@ -32,10 +47,21 @@
 (defmethod handle-ws-event :chsk/state [db [[op arg] evt]]
   (assoc db :ready? (:first-open? arg)))
 
+(defmethod handle-ws-event :chsk/recv [db [[op arg] evt]]
+  ;; event is embedded in the recv event
+  (assoc db :results
+         (distinct-by :id
+          (concat (last arg) (:results db)))))
+
 (register-handler
  :initialize-db
  (fn [_ _]
    default-value))
+
+(register-handler
+ :clear-results
+ (fn [db _]
+   (assoc db :results [])))
 
 (register-handler
  :ws-event
@@ -46,6 +72,12 @@
  :query-changed
  (fn [db [_ value]]
    (assoc db :query value)))
+
+(register-handler
+ :dump-data
+ (fn [db _]
+   (.log js/console (str db))
+   db))
 
 (register-handler
  :submit

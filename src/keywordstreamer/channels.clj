@@ -1,15 +1,14 @@
 (ns keywordstreamer.channels
   (:require [clojure.core.async :refer [chan close!]]
+            [taoensso.timbre :as timbre :refer [info]]
             [com.stuartsierra.component :as component]))
 
-(defrecord Channels [dispatch reap
-                     events shutdown
-                     google bing yahooo
-                     amazon facebook
-                     pinterest youtube]
+(defrecord Channels [server]
   component/Lifecycle
   (start [this]
+    (info "starting")
     (assoc this
+           :ws        (get-in server [:ws :ch-recv])
            :dispatch  (chan)
            :reap      (chan)
            :events    (chan)
@@ -22,10 +21,22 @@
            :youtube   (chan)
            :shutdown  (chan)))
   (stop [this]
-    (close! dispatch)
-    (close! reap)
-    (close! shutdown)
+    (info "stopping")
+    ;; TODO Close these.
+    ;; (close! (:ws this))
+    ;; (close! (:dispatch this))
+    ;; (close! (:reap this))
+    ;; (close! (:events this))
+    ;; (close! (:google this))
+    ;; (close! (:bing this))
+    ;; (close! (:yahoo this))
+    ;; (close! (:amazon this))
+    ;; (close! (:facebook this))
+    ;; (close! (:pinterest this))
+    ;; (close! (:youtube this))
+    ;; (close! (:shutdown this))
     (assoc this
+           :ws        nil
            :dispatch  nil
            :reap      nil
            :events    nil
@@ -39,4 +50,4 @@
            :shutdown  nil)))
 
 (defn new-channels []
-  map->Channels)
+  (map->Channels {}))

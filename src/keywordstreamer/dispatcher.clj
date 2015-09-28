@@ -4,10 +4,10 @@
             [taoensso.timbre :as timbre :refer [info]]
             [keywordstreamer.utils :refer [char-range current-year]]))
 
-;; TODO Skip permutations for yahoo
-(def permutations
-  (flatten
-   [(range 1 10) (char-range \a \z) (current-year)]))
+;; TODO: Move this to the client
+;; (def permutations
+;;   (flatten
+;;    [(range 1 10) (char-range \a \z) (current-year)]))
 
 (defn search-chans [m]
   (let [searches (->> (:searches m)
@@ -32,11 +32,14 @@
       ([data]
        (when data
          (doseq [sc (search-chans data)]
-           (let [searches (conj (map (partial str (:query data) " ") permutations)
-                                (:query data))
-                 chan     (sc channels)]
-             (doseq [s searches]
-               (>! chan (assoc data :query s))))))
+           (>!  (sc channels) data)
+           ;; (let [searches (conj (map (partial str (:query data) " ") permutations)
+           ;;                      (:query data))
+           ;;       chan     (sc channels)]
+           ;;   (doseq [s searches]
+           ;;     ))
+           )
+         )
        (recur))
       :priority true)))
 

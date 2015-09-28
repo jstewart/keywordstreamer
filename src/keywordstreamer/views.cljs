@@ -24,7 +24,7 @@
                               :on-click #(dispatch [:submit])
                               :class "btn btn-primary"}
      [span
-      {:aria-hidden "true" :style {:padding-right "5px;"}}]
+      {:aria-hidden "true" :style {:padding-right "5px"}}]
      (str label  " Streaming")]))
 
 (defn search-type-button [search-type]
@@ -50,33 +50,49 @@
      (for [search @searches]
        ^{:key (key search)} [search-type-button search])]))
 
+(defn table-header []
+  (let [totals (subscribe [:totals])]
+    (fn []
+      [:div.row
+       [:div.col-md-4 {:class "bottom-align-text"}
+        [:strong "Keywords: (Visible/All) "
+         (str (:visible @totals) "/" (:all @totals))]]
+       [:div.col-md-8
+        [:button {:class    "btn btn-danger btn-sm pull-right"
+                  :on-click #(dispatch-sync [:clear-results])}
+         [:span.glyphicon.glyphicon-remove
+          {:aria-hidden "true" :style {:padding-right "5px"}}]
+         "Clear Results"]]])))
+
 (defn keywords-table [results]
-  (fn []
-    [:table.table.table-striped.table-hover
-     [:thead
-      [:th
-       [:input {:type "checkbox"
-                :title "Select/Deselect All"
-                :on-click #(dispatch [:select-deselect-all
-                                      (-> % .-target .-checked)])}]]
-      [:th "Search Term"]
-      [:th "Keyword"]
-      [:th "Source"]
-      [:th "Focus"]]
-     [:tbody
-      (for [{:keys [id name search-type selected query]} @results]
-        ^{:key id} [:tr
-                    [:td
-                     [:input {:type "checkbox"
-                              :title "Seleect Keyword"
-                              :checked selected
-                              :on-change #(dispatch
-                                          [:toggle-selection id])}]]
-                    [:td query]
-                    [:td name]
-                    [:td (subs (str search-type) 1)]
-                    [:td
-                     [:span.glyphicon.glyphicon-play {:aria-hidden "true"}]]])]]))
+  (fn [results]
+    [:div
+     [table-header]
+     [:table.table.table-striped.table-hover
+      [:thead
+       [:th
+        [:input {:type "checkbox"
+                 :title "Select/Deselect All"
+                           :on-click #(dispatch [:select-deselect-all
+                                                 (-> % .-target .-checked)])}]]
+       [:th "Search Term"]
+       [:th "Keyword"]
+       [:th "Source"]
+       [:th "Focus"]]
+      [:tbody
+       (for [{:keys [id name search-type selected query]} @results]
+         ^{:key id} [:tr
+                     [:td
+                      [:input {:type "checkbox"
+                               :title "Select Keyword"
+                               :checked selected
+                               :on-change #(dispatch
+                                            [:toggle-selection id])}]]
+                     [:td query]
+                     [:td name]
+                     [:td (subs (str search-type) 1)]
+                     [:td
+                      [:span.glyphicon.glyphicon-play {:aria-hidden "true"}]]])]]]))
 
 (defn no-results []
   (let [totals (subscribe [:totals])]
@@ -91,14 +107,6 @@
     (if (seq @results)
       [keywords-table results]
       [no-results])))
-
-(defn totals []
-  (let [totals (subscribe [:totals])]
-    (fn []
-      [:div.row
-       [:div.col-md-10
-        [:strong "All keywords: " (:all @totals)]
-        [:strong "Visible Keywords: " (:visible @totals)]]])))
 
 (defn keywordstreamer-app []
   (let [results  (subscribe [:visible-results])
