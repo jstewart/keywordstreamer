@@ -34,7 +34,8 @@
                                 [:channels :server])))
 
 (defn -main [& args]
-  (let [system (component/start (create-system 9009))]
+  (let [port (Integer/parseInt (get (system/getenv) "PORT" "9009"))
+        system (component/start (create-system port))]
     (on-shutdown
      (info "interrupted! shutting down")
      (component/stop system))))
