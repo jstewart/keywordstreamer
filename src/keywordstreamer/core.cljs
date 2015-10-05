@@ -5,7 +5,7 @@
      [keywordstreamer.handlers]
      [keywordstreamer.subs]
      [keywordstreamer.views]
-     [keywordstreamer.websocket :refer [setup-ws setup-ws-events]]))
+     [keywordstreamer.streaming :refer [setup-ws setup-ws-events]]))
 
 (defn setup
   []

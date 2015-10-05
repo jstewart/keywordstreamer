@@ -91,8 +91,9 @@
                      [:td query]
                      [:td name]
                      [:td (subs (str search-type) 1)]
-                     [:td
-                      [:span.glyphicon.glyphicon-play {:aria-hidden "true"}]]])]]]))
+                     [:td {:on-click #(dispatch [:focus-keyword name])}
+                      [:span.glyphicon.glyphicon-play.focus-keyword
+                       {:aria-hidden "true"}]]])]]]))
 
 (defn no-results []
   (let [totals (subscribe [:totals])]
@@ -117,6 +118,7 @@
        [:div.row
         [:div.col-md-10
          [search-input {:title "query"
+                        :id "query"
                         :placeholder "Type your keywords here"}]]
         [:div.col-md-2
          [search-button]]]

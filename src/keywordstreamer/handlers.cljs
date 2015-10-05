@@ -1,47 +1,23 @@
-(ns keywordstreamer.handlers
-  (:require [cljs.core.async :refer [>!]]
-            [keywordstreamer.db    :refer [default-value]]
-            [keywordstreamer.websocket :refer [event-chan]]
-            [re-frame.core         :refer [register-handler path trim-v after]])
+(ns ^:figwheel-always keywordstreamer.handlers
+  (:require [cljs.core.async           :refer [>!]]
+            [keywordstreamer.db        :refer [default-value]]
+            [keywordstreamer.streaming :refer [event-chan handle-permuted-search]]
+            [re-frame.core             :refer [register-handler path
+                                               trim-v after dispatch]]
+            [keywordstreamer.utils :as utils])
+
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
-;; taken from medley.core
-(defn distinct-by
-  "Returns a lazy sequence of the elements of coll, removing any elements that
-  return duplicate values when passed to a function f."
-  [f coll]
-  (let [step (fn step [xs seen]
-               (lazy-seq
-                ((fn [[x :as xs] seen]
-                   (when-let [s (seq xs)]
-                     (let [fx (f x)]
-                       (if (contains? seen fx)
-                         (recur (rest s) seen)
-                         (cons x (step (rest s) (conj seen fx)))))))
-                 xs seen)))]
-    (step coll #{})))
-
-;; Gross. Isn't there something better in clojurescript?
-(defn index-of [coll pred]
-  (let [v (map-indexed vector coll)
-        f (first (filter pred v))]
-    (if f (first f) nil)))
-
-(defn toggle-result [coll id]
-  (let [result  (first (filter #(= (:id %) id) coll))
-        toggled (assoc result :selected (not (:selected result)))
-        idx     (index-of coll #(= (:id (last %)) id))]
-    ;; vec is needed because assoc won't work on a lazy-seq
-    (assoc (vec coll) idx toggled)))
-
-(defn toggle-all [coll selection]
-  (map #(assoc % :selected selection) coll))
+(defn create-search [query searches]
+  (go (>! event-chan
+          [:ks/search {:query query :searches searches}]))
+  (handle-permuted-search query))
 
 (defmulti handle-ws-event
   (fn [db [[op arg] evt]] op))
 
 (defmethod handle-ws-event :default [db [[op arg] evt]]
-  (.log js/console (str "unhandled event: " op))
+  ;; No-op
   db)
 
 (defmethod handle-ws-event :chsk/state [db [[op arg] evt]]
@@ -50,7 +26,7 @@
 (defmethod handle-ws-event :chsk/recv [db [[op arg] evt]]
   ;; event is embedded in the recv event
   (assoc db :results
-         (distinct-by :id
+         (utils/distinct-by :id
           (concat (last arg) (:results db)))))
 
 (register-handler
@@ -71,6 +47,7 @@
 (register-handler
  :query-changed
  (fn [db [_ value]]
+   (dispatch [:stop-streaming])
    (assoc db :query value)))
 
 (register-handler
@@ -84,28 +61,44 @@
  (fn [db _]
    (let [{:keys [query searches streaming?]} db]
      (when-not streaming?
-       (go (>! event-chan
-               [:ks/search {:query query :searches searches}])))
+       (create-search query searches))
      (assoc db :streaming? (not streaming?)))))
+
+(register-handler
+ :stop-streaming
+ (fn [db _]
+   (assoc db :streaming? false)))
 
 (register-handler
  :toggle-selection
  (fn [db [_ id]]
    (assoc db
           :results
-          (toggle-result (:results db) id))))
+          (utils/toggle-result (:results db) id))))
 
-;; TODO visible
+(register-handler
+ :focus-keyword
+ (fn [db [_ query]]
+   (let [{:keys [searches]} db]
+     (create-search query searches))
+   (set! (.-hash js/location) "#query")
+   (assoc db
+          :query query
+          :streaming? true)))
+
 (register-handler
  :select-deselect-all
  (fn [db [_ selection]]
-   ;; Get ids of visible.
    (let [])
    (assoc db
           :results
-          (toggle-all (:results db) selection))))
+          (utils/toggle-all (:results db) selection))))
 
 (register-handler
  :search-type-changed
  (fn [db [_ value]]
-   (merge-with merge db {:searches value})))
+   (let [db (merge-with merge db {:searches value})]
+     ;; When type is changed mid-stream so is the search
+     (when (:streaming? db)
+       (create-search (:query db) (:searches db)))
+     db)))
