@@ -31,37 +31,53 @@
    :name res
    :search-type (search-types p)})
 
-(defn start-worker [provider {:keys [shutdown reap] :as channels} n]
+(defn perform-search [{:keys [provider data]}]
   (let [search-fn (condp = provider
                     :google  google-search
                     :bing    bing-search
                     :yahoo   yahoo-search
                     :amazon  amazon-search
                     :youtube youtube-search)]
-    (info (str "starting " (name provider) " search worker " n))
-    (thread
-      (loop []
-        (alt!!
-          shutdown
-          ([_] (info "shutting down"))
 
-          (provider channels)
-          ([data]
-           (let [q   (->> (:query data) (take 500) (apply str))
-                 df  (partial create-result-map provider q)
-                 ck  (cache-key provider q)
-                 res (if (cache/has? @C ck)
-                       (cache/hit @C ck)
-                       (swap! C
-                              #(cache/miss
-                                % ck
-                                ;; TODO: Ugly. Needs a refactor
-                                (map df (try
-                                          (search-fn data)
-                                          (catch Exception e
-                                            (info (str "Caught exception searching: "
-                                                       (.getMessage e))))
-                                          )))))]
-             (>!! reap (assoc data :results (ck res))))
-           (recur))
-          :priority true)))))
+    (try
+      (search-fn data)
+      (catch Exception e
+        (info (str "Caught exception searching: "
+                   (.getMessage e)))
+        []))))
+
+(defn cache-miss [{:keys [cache-key data query provider] :as m}]
+  (swap!
+   C
+   (fn [res]
+     (cache/miss
+      res
+      cache-key
+      (map (partial create-result-map provider query)
+           (perform-search m))))))
+
+(defn cache-result
+  [{:keys [cache-key] :as m}]
+  (if (cache/has? @C cache-key)
+    (cache/hit @C cache-key)
+    (cache-miss m)))
+
+(defn start-worker [provider {:keys [shutdown reap] :as channels} n]
+  (info (str "starting " (name provider) " search worker " n))
+  (thread
+    (loop []
+      (alt!!
+        shutdown
+        ([_] (info "shutting down"))
+
+        (provider channels)
+        ([data]
+         (let [q   (->> (:query data) (take 500) (apply str))
+               ck (cache-key provider q)
+               res (cache-result  {:cache-key ck
+                                   :data data
+                                   :query q
+                                   :provider provider})]
+           (>!! reap (assoc data :results (ck res))))
+         (recur))
+        :priority true))))
