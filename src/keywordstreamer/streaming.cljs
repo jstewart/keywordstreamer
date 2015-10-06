@@ -14,18 +14,11 @@
 
 (defonce event-chan (chan))
 
-(defn ws-host
-  [win-loc]
-  (if (re-find #"rhcloud" win-loc)
-    (str (-> win-loc (clojure.string/split #":") first) ":8000")
-    win-loc))
-
 (defn setup-ws
   []
   (let [{:keys [chsk ch-recv send-fn state]}
         (sente/make-channel-socket! "/chsk"
-                                    {:type :auto
-                                     :host (ws-host (-> js/window .-location .-host))})]
+                                    {:type :auto})]
     (def chsk       chsk)
     (def ch-chsk    ch-recv)
     (def chsk-send! send-fn)
