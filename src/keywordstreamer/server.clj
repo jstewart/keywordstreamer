@@ -33,7 +33,7 @@
   (:client-id ring-req))
 
 (defn- start-server [handler host port ws]
-  (let [server (run-server (make-handler ws) {:host host :port port})]
+  (let [server (run-server (make-handler ws) {:ip host :port port})]
     (info (str "Started server on localhost:" port))
     server))
 
