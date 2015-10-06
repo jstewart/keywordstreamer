@@ -37,7 +37,7 @@
   (let [host (get (System/getenv) "OPENSHIFT_CLOJURE_HTTP_IP" "0.0.0.0")
         port (Integer/parseInt (get (System/getenv) "OPENSHIFT_CLOJURE_HTTP_PORT" "9009"))
 
-        system (component/start (create-system port))]
+        system (component/start (create-system host port))]
     (on-shutdown
      (info "interrupted! shutting down")
      (component/stop system))))
