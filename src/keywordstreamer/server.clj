@@ -5,17 +5,28 @@
            [compojure.handler :as handler]
            [compojure.route :as route]
            [org.httpkit.server :refer [run-server]]
+           [selmer.parser :as parser]
            [taoensso.sente :as sente]
            [taoensso.sente.server-adapters.http-kit :refer [sente-web-server-adapter]]
            [taoensso.timbre :as timbre :refer [info]]
-           [ring.util.response :as resp])
+           [ring.util.response :refer [response content-type]])
   (use ring.middleware.anti-forgery
        ring.middleware.session))
+
+(defn render [template & [params]]
+  (-> template
+      (parser/render-file
+       (assoc params
+              :page template))
+      response
+      (content-type "text/html; charset=utf-8")))
 
 (defn make-app-routes
   [{:keys [ajax-post-fn ajax-get-or-ws-handshake-fn]}]
   (defroutes app-routes
-    (GET "/" [] (resp/resource-response "index.html" {:root "public"}))
+    (GET "/" [] (render "public/index.html"
+                        {:app-env
+                         (get (System/getenv) "APP_ENV" "dev")}))
     (route/resources "/")
     (GET  "/chsk" req (ajax-get-or-ws-handshake-fn req))
     (POST "/chsk" req (ajax-post-fn req))

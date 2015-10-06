@@ -17,6 +17,7 @@
                  [http-kit "2.1.19"]
                  [reagent "0.5.1"]
                  [re-frame "0.4.1"]
+                 [selmer "0.9.2"]
                  [ring/ring-anti-forgery "1.0.0"]]
 
   :profiles {:dev {:plugins [[lein-cljsbuild "1.0.6"]
@@ -24,15 +25,26 @@
                              [lein-ancient "0.6.7"]]
                    :dependencies [[reloaded.repl "0.2.0"]]
                    :source-paths ["dev"]
-                   :cljsbuild {:builds [{:source-paths ["src" "dev"]
+                   :cljsbuild {:builds [{:id "dev"
+                                         :source-paths ["src" "dev"]
                                          :figwheel { :on-jsload "keywordstreamer.core/reload" }
                                          :compiler {:main keywordstreamer.core
-                                                    :asset-path "js/compiled/out"
-                                                    :output-to "resources/public/js/compiled/keywordstreamer.js"
-                                                    :output-dir "resources/public/js/compiled/out"
+                                                    :asset-path "js/compiled/out-dev"
+                                                    :output-to "resources/public/js/compiled/keywordstreamer-dev.js"
+                                                    :output-dir "resources/public/js/compiled/out-dev"
                                                     :optimizations :none
                                                     :recompile-dependents true
                                                     :source-map true
-                                                    :source-map-timestamp true }}]}}}
-  :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
+                                                    :source-map-timestamp true }}
+
+                                        {:id "production"
+                                         :source-paths ["src"]
+                                         :compiler {:output-to "resources/public/js/keywordstreamer.js"
+                                                    :asset-path "js/compiled/out"
+                                                    :output-dir "resources/public/js/compiled/out"
+                                                    :optimizations :advanced
+                                                    :pretty-print false}}]}}}
+  :clean-targets ^{:protect false} ["resources/public/js/compiled"
+                                    "target"
+                                    "resources/public/js/keywordstreamer.js"]
   :figwheel {:css-dirs ["resources/public/css"] :nrepl-port 7888})
