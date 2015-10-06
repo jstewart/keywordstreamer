@@ -32,8 +32,8 @@
   [ring-req]
   (:client-id ring-req))
 
-(defn- start-server [handler port ws]
-  (let [server (run-server (make-handler ws) {:port port})]
+(defn- start-server [handler host port ws]
+  (let [server (run-server (make-handler ws) {:host host :port port})]
     (info (str "Started server on localhost:" port))
     server))
 
@@ -41,14 +41,14 @@
   (when server
     (server)))
 
-(defrecord Server [port]
+(defrecord Server [host port]
   component/Lifecycle
   (start [this]
     (let [ws      (sente/make-channel-socket! sente-web-server-adapter
                                               {:user-id-fn uid-fn})
           handler (make-handler ws)]
       (assoc this
-             :httpkit (start-server handler port ws)
+             :httpkit (start-server handler host port ws)
              :ws      ws)))
 
   (stop [this]
@@ -56,5 +56,5 @@
     (stop-server (:httpkit this))
     (dissoc this :httpkit :ws)))
 
-(defn new-server [port]
-  (map->Server {:port port}))
+(defn new-server [host port]
+  (map->Server {:host host :port port}))
