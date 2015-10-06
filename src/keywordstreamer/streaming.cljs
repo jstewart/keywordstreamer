@@ -45,7 +45,7 @@
   (go-loop [p (permutations query)
             q query
             c 1]
-    (<! (timeout (* 1000 c)))
+    (<! (timeout (* 5000 c)))
     (when (and (seq p)
                (= query @(subscribe [:query]))
                (true? @(subscribe [:streaming?])))

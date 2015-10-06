@@ -47,7 +47,7 @@
 
           (provider channels)
           ([data]
-           (let [q   (->> (:query data) (take 255) (apply str))
+           (let [q   (->> (:query data) (take 500) (apply str))
                  df  (partial create-result-map provider q)
                  ck  (cache-key provider q)
                  res (if (cache/has? @C ck)
@@ -55,7 +55,13 @@
                        (swap! C
                               #(cache/miss
                                 % ck
-                                (map df (search-fn data)))))]
+                                ;; TODO: Ugly. Needs a refactor
+                                (map df (try
+                                          (search-fn data)
+                                          (catch Exception e
+                                            (info (str "Caught exception searching: "
+                                                       (.getMessage e))))
+                                          )))))]
              (>!! reap (assoc data :results (ck res))))
            (recur))
           :priority true)))))
