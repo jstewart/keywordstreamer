@@ -17,7 +17,7 @@
 (defn ws-host
   [win-loc]
   (if (re-find #"rhcloud" win-loc)
-    (str (-> win-loc (clojure.string/split #":") first) ":8080")
+    (str (-> win-loc (clojure.string/split #":") first) ":8000")
     win-loc))
 
 (defn setup-ws
