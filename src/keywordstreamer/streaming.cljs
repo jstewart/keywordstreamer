@@ -1,8 +1,7 @@
 (ns keywordstreamer.streaming
   (:require [cljs.core.async :refer [<! chan timeout alts!]]
             [re-frame.core :refer [dispatch subscribe]]
-            [taoensso.sente  :as sente :refer (cb-success?)]
-            [keywordstreamer.utils :refer [char-range]])
+            [taoensso.sente  :as sente :refer [cb-success?]])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
 (defn permutations
@@ -13,12 +12,20 @@
                    (seq "abcdefghijklmnopqrstuwvxyz")]))
     []))
 
-(defonce event-chan     (chan))
+(defonce event-chan (chan))
+
+(defn ws-host
+  [win-loc]
+  (if (re-find #"rhcloud" win-loc)
+    (str (-> win-loc (clojure.string/split #":") first) ":8080")
+    win-loc))
 
 (defn setup-ws
   []
   (let [{:keys [chsk ch-recv send-fn state]}
-        (sente/make-channel-socket! "/chsk" {:type :auto})]
+        (sente/make-channel-socket! "/chsk"
+                                    {:type :auto
+                                     :host (ws-host (-> js/window .-location .-host))})]
     (def chsk       chsk)
     (def ch-chsk    ch-recv)
     (def chsk-send! send-fn)
