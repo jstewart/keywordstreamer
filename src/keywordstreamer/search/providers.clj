@@ -42,7 +42,9 @@
     (try
       (search-fn data)
       (catch Exception e
-        (info (str "Caught exception searching: "
+        (info (str "Caught exception searching "
+                   provider ": "
+                   data " | "
                    (.getMessage e)))
         []))))
 
