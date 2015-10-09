@@ -39,6 +39,7 @@
                                                     :source-map true
                                                     :source-map-timestamp true }}
 
+                                        ;; TODO: This needs to be it's own lein profile
                                         {:id "production"
                                          :source-paths ["src"]
                                          :compiler {:output-to "resources/public/js/keywordstreamer.js"
