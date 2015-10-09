@@ -2,6 +2,38 @@
   (:require [reagent.core  :as reagent :refer [atom]]
             [re-frame.core :refer [subscribe dispatch dispatch-sync]]))
 
+(defn instructions []
+  [:div
+   [:h2 "Instructions"]
+   [:p
+    (str  "Keyword streamer is a free keyword tool that searches several data sources for long "
+             "tail keyword suggestions. Just type your keyword into "
+             "the search box and watch as we find hundreds of long tail keywords")]
+   [:p (str "Let keyword streamer run for as long as you like. The longer you "
+            "let it run, the more keywords we find for you.")]
+
+   [:div.bs-callout.bs-callout-info
+    [:h4 "Channels"]
+    [:p
+     (str "If you want video, social, or shopping results you can select those "
+          "channels underneath the search bar for even more results")]]
+
+   [:div.bs-callout.bs-callout-info
+    [:h4 "Focus (Drill-Down)"]
+    [:p
+     (str "Let's say that you found a long tail keyword that you're interested in "
+          "expanding. You don't have to start over, like you will with many other "
+          "tools. Just click the \"play\" button next to the keyword to drill down"
+          " and focus the stream.")]]
+
+
+   [:div.bs-callout.bs-callout-info
+    [:h4 "Download Keywords"]
+    [:p
+     (str "When you're happy with your list of keywords, select some with the "
+          "checkboxes, then click the \"Download Selected\" button to download and use "
+          "in your favorite competition analysis tool.")]]])
+
 (defn search-input [{:keys [title on-save on-stop]}]
   (let [query (subscribe [:query])]
     (fn [props]
@@ -40,6 +72,8 @@
        [:button#download-button {:class "btn btn-primary btn-sm pull-right"
                                  :disabled (not (seq @selected))
                                  :type "submit"}
+        [:span.glyphicon.glyphicon-floppy-save
+         {:aria-hidden "true" :style {:padding-right "5px"}}]
         "Download Selected"]])))
 
 (defn search-type-button [search-type]
@@ -116,10 +150,9 @@
 (defn no-results []
   (let [totals (subscribe [:totals])]
     (fn []
-      (when (and
-             (>     (:all @totals) 0)
-             (zero? (:visible @totals)))
-        [:p.lead "All results filtered"]))))
+      (if (and (zero? (:visible @totals)) (> (:all @totals) 0))
+        [:p.lead "All results filtered"]
+        [instructions]))))
 
 (defn keyword-results [results]
   (fn []
