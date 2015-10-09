@@ -41,16 +41,16 @@
 ;; when current search in atom is finished or (subscribe ...)
 ;; or permutations are done
 (defn handle-permuted-search
-  [query]
+  [{:keys [query searches]}]
   (go-loop [p (permutations query)
             q query
             c 1]
     (<! (timeout (* 5000 c)))
     (when (and (seq p)
-               (= query @(subscribe [:query]))
-               (true? @(subscribe [:streaming?])))
+               (= query    @(subscribe [:query]))
+               (= searches @(subscribe [:searches]))
+               (true?      @(subscribe [:streaming?])))
       (go (>! event-chan
-
               [:ks/search {:query (first p)
                            :searches @(subscribe [:searches])}]))
       (recur (rest p) query (inc c)))))

@@ -9,9 +9,10 @@
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
 (defn create-search [query searches]
-  (go (>! event-chan
-          [:ks/search {:query query :searches searches}]))
-  (handle-permuted-search query))
+  (let [evt-data {:query query :searches searches}]
+    (go (>! event-chan
+            [:ks/search evt-data]))
+    (handle-permuted-search evt-data)))
 
 (defmulti handle-ws-event
   (fn [db [[op arg] evt]] op))
