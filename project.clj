@@ -4,6 +4,7 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :main keywordstreamer.system
+  :min-lein-version "2.0.0"
 
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/clojurescript "1.7.122"]
@@ -17,8 +18,9 @@
                  [http-kit "2.1.19"]
                  [reagent "0.5.1"]
                  [re-frame "0.4.1"]
+                 [ring/ring-anti-forgery "1.0.0"]
                  [selmer "0.9.2"]
-                 [ring/ring-anti-forgery "1.0.0"]]
+                 [testdouble/clojurescript.csv "0.2.0"]]
 
   :profiles {:dev {:plugins [[lein-cljsbuild "1.0.6"]
                              [lein-figwheel "0.3.7"]

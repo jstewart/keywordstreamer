@@ -53,7 +53,7 @@
 (register-handler
  :dump-data
  (fn [db _]
-   (.log js/console (str db))
+   (.log js/console (str (filter :selected (:results db))))
    db))
 
 (register-handler

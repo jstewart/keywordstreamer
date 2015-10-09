@@ -1,6 +1,7 @@
 (ns keywordstreamer.subs
   (:require-macros [reagent.ratom :refer [reaction]])
-  (:require [re-frame.core :refer [register-sub subscribe]]))
+  (:require [re-frame.core :refer [register-sub subscribe]]
+            [testdouble.cljs.csv :as csv]))
 
 (defn in?
   [coll x]
@@ -22,6 +23,14 @@
    (reaction (:streaming? @db))))
 
 (register-sub
+ :stream-button-verbiage
+ (fn [db _]
+   (reaction
+    (if @(subscribe [:streaming?])
+      {:label "Stop" :span :span.glyphicon.glyphicon-stop}
+      {:label "Start" :span :span.glyphicon.glyphicon-play}))))
+
+(register-sub
  :ready?
  (fn [db _]
    (reaction (:ready? @db))))
@@ -34,11 +43,28 @@
 (register-sub
  :totals
  (fn [db _]
-   (let [all (reaction  (:results @db))
-         vis (subscribe [:visible-results])]
+   (let [all (subscribe [:results])
+         vis (subscribe [:visible-results])
+         sel (subscribe [:selected-results])]
      (reaction
       {:all (count @all)
+       :selected (count @sel)
        :visible (count @vis)}))))
+
+(register-sub
+ :selected-results
+ (fn [db _]
+   (let [res (subscribe [:results])]
+     (reaction (filter :selected @res)))))
+
+(register-sub
+ :csv-data
+ (fn [db _]
+   (let [sel (subscribe [:selected-results])]
+     (reaction
+      (js/encodeURIComponent
+       (csv/write-csv
+        (map (comp vector :name) @sel)))))))
 
 (register-sub
  :visible-results

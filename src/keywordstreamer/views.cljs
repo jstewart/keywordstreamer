@@ -15,17 +15,32 @@
 (defn search-button []
   (let [streaming (subscribe [:streaming?])
         ready     (subscribe [:ready?])
-        label     (if @streaming "Stop" "Start")
-        span      (if @streaming :span.glyphicon.glyphicon-stop
-                      :span.glyphicon.glyphicon-play)]
-    (fn [])
-    [:button#search-keywords {:type "submit"
-                              :disabled (not @ready)
-                              :on-click #(dispatch [:submit])
-                              :class "btn btn-primary"}
-     [span
-      {:aria-hidden "true" :style {:padding-right "5px"}}]
-     (str label  " Streaming")]))
+        verbiage  (subscribe [:stream-button-verbiage])]
+    (fn []
+      [:button#search-keywords {:type "submit"
+                                :disabled (not @ready)
+                                :on-click #(dispatch [:submit])
+                                :class "btn btn-primary"}
+       [(:span @verbiage)
+        {:aria-hidden "true" :style {:padding-right "5px"}}]
+       (str (:label @verbiage) " Streaming")])))
+
+(defn download-button []
+  (let [selected (subscribe [:selected-results])
+        csv-data (subscribe [:csv-data])]
+    (fn []
+      ;(when (seq @selected))
+      [:form {:on-submit #(set! (.-value (.getElementById js/document "csrf-token")) js/csrf)
+              :action "/download"
+              :method "POST"}
+       [:input {:type "hidden"
+                :name "data"
+                :value @csv-data}]
+       [:input {:type "hidden" :name "__anti-forgery-token" :id "csrf-token"}]
+       [:button#download-button {:class "btn btn-primary btn-sm pull-right"
+                                 :disabled (not (seq @selected))
+                                 :type "submit"}
+        "Download Selected"]])))
 
 (defn search-type-button [search-type]
   (let [id         (-> search-type key name)
@@ -54,19 +69,22 @@
   (let [totals (subscribe [:totals])]
     (fn []
       [:div.row
-       [:div.col-md-4 {:class "bottom-align-text"}
-        [:strong "Keywords: (Visible/All) "
-         (str (:visible @totals) "/" (:all @totals))]]
-       [:div.col-md-8
+       [:div.col-md-6 {:class "bottom-align-text"}
+        [:strong "Keywords: (Visible/Selected/All) "
+         (str (:visible @totals) "/"
+              (:selected @totals) "/"
+              (:all @totals))]]
+       [:div.col-md-6
         [:button {:class    "btn btn-danger btn-sm pull-right"
                   :on-click #(dispatch-sync [:clear-results])}
          [:span.glyphicon.glyphicon-remove
           {:aria-hidden "true" :style {:padding-right "5px"}}]
-         "Clear Results"]]])))
+         "Clear"]
+        [download-button]]])))
 
 (defn keywords-table [results]
   (fn [results]
-    [:div
+    [:div#results-table
      [table-header]
      [:table.table.table-striped.table-hover
       [:thead

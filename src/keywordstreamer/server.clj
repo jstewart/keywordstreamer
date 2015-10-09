@@ -9,9 +9,11 @@
            [taoensso.sente :as sente]
            [taoensso.sente.server-adapters.http-kit :refer [sente-web-server-adapter]]
            [taoensso.timbre :as timbre :refer [info]]
-           [ring.util.response :refer [response content-type]])
+           [ring.util.codec :refer [url-decode]]
+           [ring.util.response :refer [response header content-type]])
   (use ring.middleware.anti-forgery
-       ring.middleware.session))
+       ring.middleware.session
+       ring.util.anti-forgery))
 
 (defn render [template & [params]]
   (-> template
@@ -25,10 +27,14 @@
   [{:keys [ajax-post-fn ajax-get-or-ws-handshake-fn]}]
   (defroutes app-routes
     (GET "/" [] (render "public/index.html"
-                        {:app-env
-                         (get (System/getenv) "APP_ENV" "dev")}))
+                        {:anti-forgery-token *anti-forgery-token*
+                         :app-env (get (System/getenv) "APP_ENV" "dev")}))
     (route/resources "/")
     (GET  "/chsk" req (ajax-get-or-ws-handshake-fn req))
+    (POST  "/download" [data]
+           (-> (response (url-decode data))
+               (header "Content-Disposition" "attachment; filename=keywords.csv")
+               (content-type "text/csv; charset=utf-8")))
     (POST "/chsk" req (ajax-post-fn req))
     (route/not-found "Not Found")))
 
