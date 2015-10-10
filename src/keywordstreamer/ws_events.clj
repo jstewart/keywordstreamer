@@ -13,6 +13,15 @@
   (let [[_ data] event]
     (go (>! dispatch (assoc data :client-id client-id)))))
 
+(defmethod handle-ws-event :chsk/ws-ping [{:keys [client-id event]} dispatch]
+  (comment "no-op"))
+
+(defmethod handle-ws-event :chsk/uidport-open [{:keys [client-id event]} dispatch]
+  (comment "no-op"))
+
+(defmethod handle-ws-event :chsk/uidport-close [{:keys [client-id event]} dispatch]
+  (comment "no-op"))
+
 (defn start-event-loop
   "Incoming events from websocket"
   [{:keys [ws shutdown dispatch]}]

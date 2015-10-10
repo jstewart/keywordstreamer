@@ -1,4 +1,4 @@
-(ns keywordstreamer.views
+(ns ^:figwheel-always keywordstreamer.views
   (:require [reagent.core  :as reagent :refer [atom]]
             [re-frame.core :refer [subscribe dispatch dispatch-sync]]))
 
@@ -19,12 +19,11 @@
           "channels underneath the search bar for even more results")]]
 
    [:div.bs-callout.bs-callout-info
-    [:h4 "Focus (Drill-Down)"]
+    [:h4 "Drill Down"]
     [:p
      (str "Let's say that you found a long tail keyword that you're interested in "
           "expanding. You don't have to start over, like you will with many other "
-          "tools. Just click the \"play\" button next to the keyword to drill down"
-          " and focus the stream.")]]
+          "tools. Just click on the keyword to drill down into that keyword")]]
 
 
    [:div.bs-callout.bs-callout-info
@@ -37,6 +36,7 @@
 (defn search-input [{:keys [title on-save on-stop]}]
   (let [query (subscribe [:query])]
     (fn [props]
+      [:a {:name "searchbox"}]
       [:input (merge props
                      {:type "text"
                       :value @query
@@ -128,9 +128,9 @@
                            :on-click #(dispatch [:select-deselect-all
                                                  (-> % .-target .-checked)])}]]
        [:th "Search Term"]
-       [:th "Keyword"]
-       [:th "Source"]
-       [:th "Focus"]]
+       [:th "Keyword (Click to Drill Down)"]
+
+       [:th "Source"]]
       [:tbody
        (for [{:keys [id name search-type selected query]} @results]
          ^{:key id} [:tr
@@ -141,11 +141,11 @@
                                :on-change #(dispatch
                                             [:toggle-selection id])}]]
                      [:td query]
-                     [:td name]
-                     [:td (subs (str search-type) 1)]
-                     [:td {:on-click #(dispatch [:focus-keyword name])}
-                      [:span.glyphicon.glyphicon-play.focus-keyword
-                       {:aria-hidden "true"}]]])]]]))
+                     [:td
+                      [:a {:on-click #(dispatch [:focus-keyword name])
+                           :href "#searchbox"}
+                       name]]
+                     [:td (subs (str search-type) 1)]])]]]))
 
 (defn no-results []
   (let [totals (subscribe [:totals])]

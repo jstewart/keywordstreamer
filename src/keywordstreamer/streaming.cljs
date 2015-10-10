@@ -1,4 +1,4 @@
-(ns keywordstreamer.streaming
+(ns ^:figwheel-always keywordstreamer.streaming
   (:require [cljs.core.async :refer [<! chan timeout alts!]]
             [re-frame.core :refer [dispatch subscribe]]
             [taoensso.sente  :as sente :refer [cb-success?]])
