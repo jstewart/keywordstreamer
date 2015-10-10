@@ -10,9 +10,9 @@
    (str (name k) "-"
         (s/replace s #"\W" "-"))))
 
-;; 30 minute TTL cache
+;; 15 minute TTL cache
 ;; TODO Replace with redis
-(def C (atom (cache/ttl-cache-factory {} :ttl 1800000)))
+(def C (atom (cache/ttl-cache-factory {} :ttl 900000)))
 
 (defn cache-key [k s]
   (keyword (make-result-id k s)))

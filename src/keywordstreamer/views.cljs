@@ -4,7 +4,7 @@
 
 (defn instructions []
   [:div
-   [:h2 "Instructions"]
+   [:h4 "Instructions"]
    [:p
     (str  "Keyword streamer is a free keyword tool that searches several data sources for long "
              "tail keyword suggestions. Just type your keyword into "
