@@ -3,7 +3,7 @@ body {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   height: 100%;
 }
-.search-verticals { margin-top: 5px; }
+.search-verticals { margin-top: 10px; }
 .search-results   { margin-top: 35px; }
 
 @media (max-width: 991px) {
@@ -21,10 +21,10 @@ body {
     border-radius: 3px;
 }
 .bs-callout-info {
-    border-left-color: #1b809e;
+  border-left-color: #1ABC9C;
 }
 .bs-callout-info h4 {
-    color: #1b809e;
+    color: #1ABC9C;
 }
 .bs-callout h4 {
     margin-top: 0;
