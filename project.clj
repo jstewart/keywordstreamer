@@ -50,8 +50,7 @@
                                                     :optimizations :advanced
                                                     :pretty-print false}}]}}}
   :clean-targets ^{:protect false} ["resources/public/js/compiled"
-                                    "target"
-                                    "resources/public/js/keywordstreamer.js"]
+                                    "target"]
   :figwheel {:css-dirs ["resources/public/css"] :nrepl-port 7888}
 
   :lis-opts {:redirect-output-to "/var/log/keywordstreamer.log"
