@@ -15,7 +15,7 @@
    [:div.bs-callout.bs-callout-info
     [:h4 "Channels"]
     [:p
-     (str "If you want video, social, or shopping results you can select those "
+     (str "If you want video or shopping results you can select those "
           "channels underneath the search bar for even more results")]]
 
    [:div.bs-callout.bs-callout-info

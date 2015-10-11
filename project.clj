@@ -15,6 +15,7 @@
                  [jetty/javax.servlet "5.1.12"]
                  [compojure "1.4.0"]
                  [clj-http "2.0.0"] ; Need proxy support for the client
+                 [environ "1.0.1"]
                  [http-kit "2.1.19"]
                  [reagent "0.5.1"]
                  [re-frame "0.4.1"]
@@ -23,6 +24,7 @@
                  [testdouble/clojurescript.csv "0.2.0"]]
 
   :profiles {:dev {:plugins [[lein-cljsbuild "1.0.6"]
+                             [lein-environ "1.0.1"]
                              [lein-figwheel "0.3.7"]
                              [lein-ancient "0.6.7"]]
                    :dependencies [[reloaded.repl "0.2.0"]]
@@ -50,4 +52,10 @@
   :clean-targets ^{:protect false} ["resources/public/js/compiled"
                                     "target"
                                     "resources/public/js/keywordstreamer.js"]
-  :figwheel {:css-dirs ["resources/public/css"] :nrepl-port 7888})
+  :figwheel {:css-dirs ["resources/public/css"] :nrepl-port 7888}
+
+  :lis-opts {:redirect-output-to "/var/log/keywordstreamer.log"
+             :properties {:host.ip "127.0.0.1" :port 8080}
+             :jvm-opts ["-server"
+                        "-Xss512K"
+                        "-Xmx384M"]})

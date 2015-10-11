@@ -1,0 +1,18 @@
+#!/bin/bash
+
+NAME=keywordstreamer
+VERSION=0.1.0-SNAPSHOT
+JAR_INSTALL_DIR=/usr/local/keywordstreamer
+ARTIFACT_UBERJAR_PATH=/Users/jstewart/Sources/keywordstreamer/init-script/keywordstreamer-0.1.0-SNAPSHOT-standalone.jar
+INIT_SCRIPT_INSTALL_DIR=/etc/init.d
+ARTIFACT_INIT_SCRIPT_PATH=/Users/jstewart/Sources/keywordstreamer/init-script/keywordstreamerd
+INSTALLED_INIT_SCRIPT_PATH=/etc/init.d/keywordstreamerd
+
+#standalone jar
+mkdir -p $JAR_INSTALL_DIR
+cp $ARTIFACT_UBERJAR_PATH $JAR_INSTALL_DIR/"$NAME"-"$VERSION"-standalone.jar
+
+#init script
+mkdir -p $INIT_SCRIPT_INSTALL_DIR
+cp $ARTIFACT_INIT_SCRIPT_PATH $INIT_SCRIPT_INSTALL_DIR
+chmod u+x $INSTALLED_INIT_SCRIPT_PATH

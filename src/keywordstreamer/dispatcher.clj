@@ -9,8 +9,7 @@
                       keys)]
     (-> {:web      [:google :bing :yahoo]
          :video    [:youtube]
-         :shopping [:amazon]
-         :social   []}
+         :shopping [:amazon]}
         (select-keys searches)
         vals
         flatten)))
