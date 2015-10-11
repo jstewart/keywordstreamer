@@ -54,7 +54,7 @@
   :figwheel {:css-dirs ["resources/public/css"] :nrepl-port 7888}
 
   :lis-opts {:redirect-output-to "/var/log/keywordstreamer.log"
-             :properties {:host.ip "127.0.0.1" :port 8080}
+             :properties {:host.ip "127.0.0.1" :port 8080 :app-env "production"}
              :jvm-opts ["-server"
                         "-Xss512K"
                         "-Xmx384M"]})

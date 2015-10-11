@@ -35,7 +35,7 @@ start() {
 		exit 1
 	fi
 	echo "Starting $NAME"
-	java -Dhost.ip="127.0.0.1" -Dport="8080" -server -Xss512K -Xmx384M -jar $INSTALL_JAR &> /var/log/keywordstreamer.log &
+	java -Dhost.ip="127.0.0.1" -Dport="8080" -Dapp-env="production" -server -Xss512K -Xmx384M -jar $INSTALL_JAR &> /var/log/keywordstreamer.log &
 	PID=$!
 	echo $PID > $PID_FILE
 	exit 0

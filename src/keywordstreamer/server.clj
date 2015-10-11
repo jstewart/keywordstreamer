@@ -4,6 +4,7 @@
            [compojure.core :refer [routes defroutes GET POST]]
            [compojure.handler :as handler]
            [compojure.route :as route]
+           [environ.core :refer [env]]
            [org.httpkit.server :refer [run-server]]
            [selmer.parser :as parser]
            [taoensso.sente :as sente]
@@ -28,7 +29,7 @@
   (defroutes app-routes
     (GET "/" [] (render "public/index.html"
                         {:anti-forgery-token *anti-forgery-token*
-                         :app-env (get (System/getenv) "APP_ENV" "dev")}))
+                         :app-env (env :app-env)}))
     (route/resources "/")
     (GET  "/chsk" req (ajax-get-or-ws-handshake-fn req))
     (POST  "/download" [data]
