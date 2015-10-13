@@ -7,6 +7,10 @@
 (defn scrape-google-for [s])
 (defn scrape-yt-for [s])
 
+(defn prep-query
+  [m]
+  (str (:query m) " "))
+
 (defn google-autosuggest-for [s & [hl ds]]
   (let [params  (?assoc {:client "firefox"} :hl hl :ds ds)]
     (-> (c/get "http://suggestqueries.google.com/complete/search"
@@ -17,27 +21,23 @@
         last)))
 
 (defn google-search [m]
-  (google-autosuggest-for (:query m)))
+  (google-autosuggest-for (prep-query m)))
 
 (defn bing-search [m]
   (-> (c/get "http://api.bing.com/osjson.aspx"
-             {:query-params {:query (:query m)}}
+             {:query-params {:query (prep-query m)}}
              {:as :json})
       :body
       json/read-str
       last))
 
-(defn yahoo-search [m]
-  (map
-   :key
-   (-> (c/get "http://sugg.search.yahoo.net/sg/"
-              {:query-params {:command (:query m)
-                              :nresults 20
-                              :output "json"}}
-              {:as :json})
-       :body
-       (json/read-str :key-fn keyword)
-       (get-in [:gossip :results]))))
+(defn ddg-search [m]
+  (->> (c/get "https://duckduckgo.com/ac/"
+             {:query-params {:q (prep-query m)}})
+      :body
+      (json/read-str)
+      (map vals)
+      flatten))
 
 (defn amazon-search [m]
   (-> (c/get "https://completion.amazon.com/search/complete"
@@ -45,7 +45,7 @@
                              :search-alias "aps"
                              :client "keyword-streamer"
                              :mkt 1
-                             :q (:query m)}})
+                             :q (prep-query m)}})
       :body
       (json/read-str)
       second))

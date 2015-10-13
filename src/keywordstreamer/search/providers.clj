@@ -10,7 +10,6 @@
    (str (name k) "-"
         (s/replace s #"\W" "-"))))
 
-;; 15 minute TTL cache
 ;; TODO Replace with redis
 (def C (atom (cache/ttl-cache-factory {} :ttl 900000)))
 
@@ -19,7 +18,7 @@
 
 (defn search-types [p]
   (p {:google :web
-      :yahoo  :web
+      :ddg    :web
       :bing   :web
       :amazon :shopping
       :youtube :video}))
@@ -35,7 +34,7 @@
   (let [search-fn (condp = provider
                     :google  google-search
                     :bing    bing-search
-                    :yahoo   yahoo-search
+                    :ddg     ddg-search
                     :amazon  amazon-search
                     :youtube youtube-search)]
 

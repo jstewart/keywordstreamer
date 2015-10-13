@@ -4,7 +4,7 @@
             [taoensso.timbre :as timbre :refer [info]]
             [keywordstreamer.search.providers :refer [start-worker]]))
 
-(def providers [:google :bing :yahoo :amazon :youtube])
+(def providers [:google :bing :ddg :amazon :youtube])
 
 (defn provider-workers [channels provider]
   [provider (doall

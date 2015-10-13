@@ -14,7 +14,7 @@
            :events    (chan)
            :google    (chan)
            :bing      (chan)
-           :yahoo     (chan)
+           :ddg       (chan)
            :amazon    (chan)
            :facebook  (chan)
            :pinterest (chan)
@@ -29,7 +29,7 @@
     ;; (close! (:events this))
     ;; (close! (:google this))
     ;; (close! (:bing this))
-    ;; (close! (:yahoo this))
+    ;; (close! (:ddg this))
     ;; (close! (:amazon this))
     ;; (close! (:facebook this))
     ;; (close! (:pinterest this))
@@ -42,7 +42,7 @@
            :events    nil
            :google    nil
            :bing      nil
-           :yahoo     nil
+           :ddg       nil
            :amazon    nil
            :facebook  nil
            :pinterest nil
