@@ -13,6 +13,13 @@
    (reaction (:results @db))))
 
 (register-sub
+ :row
+ (fn [db [_ id]]
+   (let [results (subscribe [:results])]
+     (reaction
+      (first (filter #(= id (:id %)) @results))))))
+
+(register-sub
  :query
  (fn [db _]
    (reaction (:query @db))))
@@ -70,12 +77,17 @@
  :visible-results
  (fn [db [_]]
    (let [searches (subscribe [:searches])
-         results  (reaction (:results @db))
-         showing  (reaction
-                   (->> @searches
-                        (filter second)
-                        (map (comp keyword first))))]
+         results  (subscribe [:results])
+         showing  (reaction  (->> @searches
+                                  (filter second)
+                                  (map (comp keyword first))))]
      (reaction
       (doall
        (filter
         #(in? @showing (:search-type %)) @results))))))
+
+(register-sub
+ :visible-result-ids
+ (fn [db _]
+   (let [visible-results (subscribe [:visible-results])]
+     (reaction (map :id @visible-results)))))

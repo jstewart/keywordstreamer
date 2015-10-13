@@ -85,7 +85,7 @@
     [:label {:class classes}
      [:input {:type "checkbox"
               :id   id
-              :on-change #(dispatch-sync
+              :on-change #(dispatch
                            [:search-type-changed
                             (let [t (.-target %)]
                               {(keyword (.-id t))
@@ -93,11 +93,13 @@
               :checked (val search-type)}]
      label-text]))
 
-(defn search-type-selector [searches]
-  (fn [props]
-    [:div.btn-group {:data-toggle "buttons"}
-     (for [search @searches]
-       ^{:key (key search)} [search-type-button search])]))
+(defn search-type-selector []
+  (let [searches (subscribe [:searches])]
+    (fn []
+      [:div.btn-group {:data-toggle "buttons"}
+       (for [search @searches]
+         ^{:key (key search)} [search-type-button search])
+       ])))
 
 (defn table-header []
   (let [totals (subscribe [:totals])]
@@ -116,8 +118,27 @@
          "Clear"]
         [download-button]]])))
 
-(defn keywords-table [results]
-  (fn [results]
+(defn keyword-row
+  [id]
+  (fn [id]
+    (let [row (subscribe [:row id])
+          {:keys [selected query name search-type]} @row]
+      [:tr
+       [:td
+        [:input {:type "checkbox"
+                 :title "Select Keyword"
+                 :checked selected
+                 :on-change #(dispatch
+                              [:toggle-selection id])}]]
+       [:td query]
+       [:td
+        [:a {:on-click #(dispatch [:focus-keyword name])
+             :href "#searchbox"}
+         name]]
+       [:td (subs (str search-type) 1)]])))
+
+(defn keywords-table [result-ids]
+  (fn [result-ids]
     [:div#results-table
      [table-header]
      [:table.table.table-striped.table-hover
@@ -132,20 +153,7 @@
 
        [:th "Source"]]
       [:tbody
-       (for [{:keys [id name search-type selected query]} @results]
-         ^{:key id} [:tr
-                     [:td
-                      [:input {:type "checkbox"
-                               :title "Select Keyword"
-                               :checked selected
-                               :on-change #(dispatch
-                                            [:toggle-selection id])}]]
-                     [:td query]
-                     [:td
-                      [:a {:on-click #(dispatch [:focus-keyword name])
-                           :href "#searchbox"}
-                       name]]
-                     [:td (subs (str search-type) 1)]])]]]))
+       (for [id @result-ids] ^{:key id} [keyword-row id])]]]))
 
 (defn no-results []
   (let [totals (subscribe [:totals])]
@@ -154,15 +162,14 @@
         [:p.lead "All results filtered"]
         [instructions]))))
 
-(defn keyword-results [results]
-  (fn []
-    (if (seq @results)
-      [keywords-table results]
-      [no-results])))
+(defn keyword-results [result-ids]
+  (fn [result-ids]
+    (if (seq @result-ids)
+       [keywords-table result-ids]
+       [no-results])))
 
 (defn keywordstreamer-app []
-  (let [results  (subscribe [:visible-results])
-        searches (subscribe [:searches])]
+  (let [result-ids (subscribe [:visible-result-ids])]
     (fn []
       [:div
        [:div.page-header [:h1 "Keyword Streamer"]]
@@ -175,7 +182,8 @@
          [search-button]]]
        [:div.row
         [:div.col-md-10.search-verticals
-         [search-type-selector searches]]]
+         [search-type-selector]
+         ]]
        [:div.row
         [:div.col-md-10.search-results
-         [keyword-results results]]]])))
+         [keyword-results result-ids]]]])))
