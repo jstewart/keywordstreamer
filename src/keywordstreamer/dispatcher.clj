@@ -1,7 +1,7 @@
 (ns keywordstreamer.dispatcher
   (:require [clojure.core.async :as async :refer [>! alt! go-loop]]
-            [com.stuartsierra.component :as component]
-            [taoensso.timbre :as timbre :refer [info]]))
+            [clojure.tools.logging :refer [info]]
+            [com.stuartsierra.component :as component]))
 
 (defn search-chans [m]
   (let [searches (->> (:searches m)

@@ -1,7 +1,7 @@
 (ns keywordstreamer.searcher
   (:require [clojure.core.async :as async :refer [>!! alt!! thread]]
+            [clojure.tools.logging :refer [info]]
             [com.stuartsierra.component :as component]
-            [taoensso.timbre :as timbre :refer [info]]
             [keywordstreamer.search.providers :refer [start-worker]]))
 
 (def providers [:google :bing :ddg :amazon :youtube])

@@ -11,7 +11,6 @@
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                  [com.stuartsierra/component "0.2.3"]
                  [com.taoensso/sente "1.6.0"]
-                 [com.taoensso/timbre "4.1.1"]
                  [jetty/javax.servlet "5.1.12"]
                  [compojure "1.4.0"]
                  [clj-http "2.0.0"] ; Need proxy support for the client
@@ -20,6 +19,7 @@
                  [reagent "0.5.1"]
                  [re-frame "0.4.1"]
                  [ring/ring-anti-forgery "1.0.0"]
+                 [ring.middleware.logger "0.5.0"]
                  [selmer "0.9.2"]
                  [testdouble/clojurescript.csv "0.2.0"]]
 

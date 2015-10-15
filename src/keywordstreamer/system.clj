@@ -1,7 +1,7 @@
 (ns keywordstreamer.system
-  (require [com.stuartsierra.component :as component]
+  (require [clojure.tools.logging :refer [info]]
+           [com.stuartsierra.component :as component]
            [environ.core :refer [env]]
-           [taoensso.timbre :as timbre :refer [info]]
            [keywordstreamer.channels :as channels]
            [keywordstreamer.dispatcher :as dispatcher]
            [keywordstreamer.reaper :as reaper]

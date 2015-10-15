@@ -27,8 +27,9 @@
 (defmethod handle-ws-event :chsk/recv [db [[op arg] evt]]
   ;; event is embedded in the recv event
   (assoc db :results
-         (utils/distinct-by :id
-          (concat (last arg) (:results db)))))
+         (utils/distinct-by
+          :id
+          (concat (:results db) (last arg)))))
 
 (register-handler
  :initialize-db

@@ -2,7 +2,7 @@
   (:require [clojure.core.async :as async :refer [alt!! thread >!!]]
             [clojure.core.cache :as cache]
             [clojure.string :as s]
-            [taoensso.timbre :as timbre :refer [info]])
+            [clojure.tools.logging :refer [info]])
   (:use [keywordstreamer.search.searchers]))
 
 (defn make-result-id [k s]

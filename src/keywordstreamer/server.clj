@@ -1,5 +1,6 @@
 (ns keywordstreamer.server
   (require [clojure.core.async :refer [<! go-loop]]
+           [clojure.tools.logging :refer [info]]
            [com.stuartsierra.component :as component]
            [compojure.core :refer [routes defroutes GET POST]]
            [compojure.handler :as handler]
@@ -9,8 +10,8 @@
            [selmer.parser :as parser]
            [taoensso.sente :as sente]
            [taoensso.sente.server-adapters.http-kit :refer [sente-web-server-adapter]]
-           [taoensso.timbre :as timbre :refer [info]]
            [ring.util.codec :refer [url-decode]]
+           [ring.middleware.logger :refer [wrap-with-logger]]
            [ring.util.response :refer [response header content-type]])
   (use ring.middleware.anti-forgery
        ring.middleware.session
@@ -41,10 +42,11 @@
 
 (defn make-handler
   [ws]
-  (->> (make-app-routes ws)
-       wrap-anti-forgery
-       wrap-session
-       handler/api))
+  (-> (make-app-routes ws)
+      wrap-anti-forgery
+      wrap-session
+      wrap-with-logger
+      handler/api))
 
 (defn uid-fn
   [ring-req]
