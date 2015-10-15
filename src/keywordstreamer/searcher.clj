@@ -1,6 +1,6 @@
 (ns keywordstreamer.searcher
   (:require [clojure.core.async :as async :refer [>!! alt!! thread]]
-            [clojure.tools.logging :refer [info]]
+            [taoensso.timbre :refer [info]]
             [com.stuartsierra.component :as component]
             [keywordstreamer.search.providers :refer [start-worker]]))
 

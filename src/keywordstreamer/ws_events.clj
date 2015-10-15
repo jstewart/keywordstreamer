@@ -1,6 +1,6 @@
 (ns keywordstreamer.ws-events
   (:require [clojure.core.async :refer [<! >! go go-loop alt!]]
-            [clojure.tools.logging :refer [info]]
+            [taoensso.timbre :refer [info]]
             [com.stuartsierra.component :as component]))
 
 (defmulti handle-ws-event

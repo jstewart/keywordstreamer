@@ -1,6 +1,6 @@
 (ns keywordstreamer.server
   (require [clojure.core.async :refer [<! go-loop]]
-           [clojure.tools.logging :refer [info]]
+           [taoensso.timbre :refer [info]]
            [com.stuartsierra.component :as component]
            [compojure.core :refer [routes defroutes GET POST]]
            [compojure.handler :as handler]

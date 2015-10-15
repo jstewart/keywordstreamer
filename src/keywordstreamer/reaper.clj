@@ -1,6 +1,6 @@
 (ns keywordstreamer.reaper
   (:require [clojure.core.async :as async :refer [alt! go-loop]]
-            [clojure.tools.logging :refer [info]]
+            [taoensso.timbre :refer [info]]
             [com.stuartsierra.component :as component]))
 
 (defn start-reaping

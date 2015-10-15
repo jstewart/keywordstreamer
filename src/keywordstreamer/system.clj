@@ -1,5 +1,5 @@
 (ns keywordstreamer.system
-  (require [clojure.tools.logging :refer [info]]
+  (require [taoensso.timbre :refer [info]]
            [com.stuartsierra.component :as component]
            [environ.core :refer [env]]
            [keywordstreamer.channels :as channels]

@@ -1,6 +1,6 @@
 (ns keywordstreamer.channels
   (:require [clojure.core.async :refer [chan close!]]
-            [clojure.tools.logging :refer [info]]
+            [taoensso.timbre :refer [info]]
             [com.stuartsierra.component :as component]))
 
 (defrecord Channels [server]

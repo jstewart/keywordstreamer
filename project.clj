@@ -11,6 +11,7 @@
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                  [com.stuartsierra/component "0.2.3"]
                  [com.taoensso/sente "1.6.0"]
+                 [com.taoensso/timbre "4.1.4"]
                  [jetty/javax.servlet "5.1.12"]
                  [compojure "1.4.0"]
                  [clj-http "2.0.0"] ; Need proxy support for the client
