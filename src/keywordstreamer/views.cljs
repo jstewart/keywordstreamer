@@ -142,15 +142,16 @@
      [table-header]
      [:table.table.table-striped.table-hover
       [:thead
-       [:th
-        [:input {:type "checkbox"
-                 :title "Select/Deselect All"
-                           :on-click #(dispatch [:select-deselect-all
-                                                 (-> % .-target .-checked)])}]]
-       [:th "Search Term"]
-       [:th "Keyword (Click to Drill Down)"]
+       [:tr
+        [:th
+         [:input {:type "checkbox"
+                  :title "Select/Deselect All"
+                  :on-click #(dispatch [:select-deselect-all
+                                        (-> % .-target .-checked)])}]]
+        [:th "Search Term"]
+        [:th "Keyword (Click to Drill Down)"]
 
-       [:th "Source"]]
+        [:th "Source"]]]
       [:tbody
        (for [[id row] results] ^{:key id} [keyword-row id row])]]]))
 
