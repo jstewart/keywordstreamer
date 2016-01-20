@@ -5,4 +5,4 @@
    :searches   {:web true :shopping false :video false} ;; Search types
    :streaming? false
    :ready?     false
-   :results    []})
+   :results    (sorted-map)})

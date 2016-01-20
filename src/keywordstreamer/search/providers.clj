@@ -72,13 +72,13 @@
         ([_] (info "shutting down"))
 
         (provider channels)
-        ([data]
-         (let [q   (->> (:query data) (take 500) (apply str))
+        ([{:keys [client-id query] :as data}]
+         (let [q   (->> query (take 500) (apply str))
                ck (cache-key provider q)
                res (cache-result  {:cache-key ck
                                    :data data
                                    :query q
                                    :provider provider})]
-           (>!! reap (assoc data :results (ck res))))
+           (>!! reap {:client-id client-id :results (ck res)}))
          (recur))
         :priority true))))

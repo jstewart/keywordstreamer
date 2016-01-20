@@ -30,6 +30,7 @@
                              [lein-ancient "0.6.7"]]
                    :dependencies [[reloaded.repl "0.2.0"]]
                    :source-paths ["dev"]
+                   :init-ns user
                    :cljsbuild {:builds [{:id "dev"
                                          :source-paths ["src" "dev"]
                                          :figwheel { :on-jsload "keywordstreamer.core/reload" }

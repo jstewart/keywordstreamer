@@ -34,9 +34,7 @@
   <script src="js/keywordstreamer.js" type="text/javascript"></script>
   {% endifequal %}
   <script>
-   window.onload = function () {
-       keywordstreamer.core.main();
-   }
+   keywordstreamer.core.main();
    var csrf = "{{ anti-forgery-token }}";
   </script>
 </html>

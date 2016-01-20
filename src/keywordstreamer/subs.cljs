@@ -13,13 +13,6 @@
    (reaction (:results @db))))
 
 (register-sub
- :row
- (fn [db [_ id]]
-   (let [results (subscribe [:results])]
-     (reaction
-      (first (filter #(= id (:id %)) @results))))))
-
-(register-sub
  :query
  (fn [db _]
    (reaction (:query @db))))
@@ -62,7 +55,7 @@
  :selected-results
  (fn [db _]
    (let [res (subscribe [:results])]
-     (reaction (filter :selected @res)))))
+     (reaction (filter (comp :selected last) @res)))))
 
 (register-sub
  :csv-data
@@ -71,7 +64,7 @@
      (reaction
       (js/encodeURIComponent
        (csv/write-csv
-        (map (comp vector :name) @sel)))))))
+        (map (comp vector :name last) @sel)))))))
 
 (register-sub
  :visible-results
@@ -84,10 +77,4 @@
      (reaction
       (doall
        (filter
-        #(in? @showing (:search-type %)) @results))))))
-
-(register-sub
- :visible-result-ids
- (fn [db _]
-   (let [visible-results (subscribe [:visible-results])]
-     (reaction (map :id @visible-results)))))
+        #(in? @showing (-> % last :search-type)) @results))))))

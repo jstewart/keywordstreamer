@@ -119,10 +119,9 @@
         [download-button]]])))
 
 (defn keyword-row
-  [id]
-  (fn [id]
-    (let [row (subscribe [:row id])
-          {:keys [selected query name search-type]} @row]
+  [id row]
+  (fn [id row]
+    (let [{:keys [selected query name search-type]} row]
       [:tr
        [:td
         [:input {:type "checkbox"
@@ -137,8 +136,8 @@
          name]]
        [:td (subs (str search-type) 1)]])))
 
-(defn keywords-table [result-ids]
-  (fn [result-ids]
+(defn keywords-table [results]
+  (fn [results]
     [:div#results-table
      [table-header]
      [:table.table.table-striped.table-hover
@@ -153,7 +152,7 @@
 
        [:th "Source"]]
       [:tbody
-       (for [id @result-ids] ^{:key id} [keyword-row id])]]]))
+       (for [[id row] results] ^{:key id} [keyword-row id row])]]]))
 
 (defn no-results []
   (let [totals (subscribe [:totals])]
@@ -162,14 +161,14 @@
         [:p.lead "All results filtered"]
         [instructions]))))
 
-(defn keyword-results [result-ids]
-  (fn [result-ids]
-    (if (seq @result-ids)
-       [keywords-table result-ids]
+(defn keyword-results [results]
+  (fn [results]
+    (if (seq results)
+       [keywords-table results]
        [no-results])))
 
 (defn keywordstreamer-app []
-  (let [result-ids (subscribe [:visible-result-ids])]
+  (let [results (subscribe [:results])]
     (fn []
       [:div
        [:div.page-header [:h1 "Keyword Streamer"]]
@@ -182,8 +181,7 @@
          [search-button]]]
        [:div.row
         [:div.col-md-10.search-verticals
-         [search-type-selector]
-         ]]
+         [search-type-selector]]]
        [:div.row
         [:div.col-md-10.search-results
-         [keyword-results result-ids]]]])))
+         [keyword-results @results]]]])))

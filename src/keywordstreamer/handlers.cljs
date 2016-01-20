@@ -26,10 +26,11 @@
 
 (defmethod handle-ws-event :chsk/recv [db [[op arg] evt]]
   ;; event is embedded in the recv event
-  (assoc db :results
-         (utils/distinct-by
-          :id
-          (concat (:results db) (last arg)))))
+  (let [results {:results (reduce #(assoc %1 (str (.getTime (js/Date.))
+                                                  "-" (:id %2))
+                                          (dissoc %2 :id))
+                                  {} (last arg))}]
+    (merge-with merge db results)))
 
 (register-handler
  :initialize-db
@@ -39,7 +40,7 @@
 (register-handler
  :clear-results
  (fn [db _]
-   (assoc db :results [])))
+   (assoc db :results (sorted-map))))
 
 (register-handler
  :ws-event
@@ -55,7 +56,7 @@
 (register-handler
  :dump-data
  (fn [db _]
-   (.log js/console (str (filter :selected (:results db))))
+   (.log js/console (clj->js db))
    db))
 
 (register-handler
@@ -74,9 +75,7 @@
 (register-handler
  :toggle-selection
  (fn [db [_ id]]
-   (assoc db
-          :results
-          (utils/toggle-result (:results db) id))))
+   (update-in db [:results id :selected] not)))
 
 (register-handler
  :focus-keyword
@@ -92,6 +91,7 @@
  :select-deselect-all
  (fn [db [_ selection]]
    (let [])
+   (update-in db [:results] #())
    (assoc db
           :results
           (utils/toggle-all (:results db) selection))))
