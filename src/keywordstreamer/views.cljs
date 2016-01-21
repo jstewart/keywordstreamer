@@ -25,6 +25,11 @@
           "expanding. You don't have to start over, like you will with many other "
           "tools. Just click on the keyword to drill down into that keyword")]]
 
+   [:div.bs-callout.bs-callout-info
+    [:h4 "Deep Research"]
+    [:p [:span "Click the search icon "]
+     [:span.fui-search ""]
+     [:span " to open a result in Google for further research."]]]
 
    [:div.bs-callout.bs-callout-info
     [:h4 "Download Keywords"]
@@ -134,7 +139,12 @@
         [:a {:on-click #(dispatch [:focus-keyword name])
              :href "#searchbox"}
          name]]
-       [:td (subs (str search-type) 1)]])))
+       [:td (subs (str search-type) 1)]
+       [:td
+        [:a {:target "_blank"
+             :href   (str "https://www.google.com/search?q="
+                          (js/encodeURI name))}
+         [:span.fui-search ""]]]])))
 
 (defn keywords-table [results]
   (fn [results]
@@ -150,8 +160,8 @@
                                         (-> % .-target .-checked)])}]]
         [:th "Search Term"]
         [:th "Keyword (Click to Drill Down)"]
-
-        [:th "Source"]]]
+        [:th "Source"]
+        [:th "Reveal"]]]
       [:tbody
        (for [[id row] results] ^{:key id} [keyword-row id row])]]]))
 

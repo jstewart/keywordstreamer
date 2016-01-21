@@ -10,11 +10,12 @@
                  [org.clojure/clojurescript "1.7.228"]
                  [org.clojure/core.async "0.2.374"]
                  [com.stuartsierra/component "0.3.1"]
+                 [com.taoensso/encore "2.32.0"]
                  [com.taoensso/sente "1.7.0"]
-                 [com.taoensso/timbre "4.1.4"]
+                 [com.taoensso/timbre "4.2.1"]
                  [jetty/javax.servlet "5.1.12"]
                  [compojure "1.4.0"]
-                 [clj-http "2.0.0"] ; Need proxy support for the client
+                 [clj-http "2.0.1"] ; Need proxy support for the client
                  [environ "1.0.1"]
                  [http-kit "2.1.19"]
                  [reagent "0.6.0-alpha"]
@@ -30,7 +31,7 @@
                              [lein-ancient "0.6.7"]]
                    :dependencies [[reloaded.repl "0.2.1"]]
                    :source-paths ["dev"]
-                   :init-ns user
+                   :repl-options {:init-ns user}
                    :cljsbuild {:builds [{:id "dev"
                                          :source-paths ["src" "dev"]
                                          :figwheel { :on-jsload "keywordstreamer.core/reload" }
