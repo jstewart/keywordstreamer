@@ -24,7 +24,7 @@
                  [selmer "1.0.0"]
                  [testdouble/clojurescript.csv "0.2.0"]]
 
-  :profiles {:dev {:plugins [[lein-cljsbuild "1.0.6"]
+  :profiles {:dev {:plugins [[lein-cljsbuild "1.1.2"]
                              [lein-environ "1.0.1"]
                              [lein-figwheel "0.5.0-3"]
                              [lein-ancient "0.6.7"]]
