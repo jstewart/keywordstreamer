@@ -14,11 +14,11 @@
 (defn google-autosuggest-for [s & [hl ds]]
   (let [params  (?assoc {:client "firefox"} :hl hl :ds ds)]
     (-> (c/get "http://suggestqueries.google.com/complete/search"
-               {:query-params (assoc params :q s)}
-               {:as :json})
-        :body
-        json/read-str
-        last)))
+                 {:query-params (assoc params :q s)
+                  :as "ISO-8859-1"})
+      :body
+      json/read-str
+      last)))
 
 (defn google-search [m]
   (google-autosuggest-for (prep-query m)))
