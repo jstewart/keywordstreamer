@@ -23,6 +23,18 @@
 (defn google-search [m]
   (google-autosuggest-for (prep-query m)))
 
+
+(defn wikipedia-search [m]
+  (->> (c/get "https://en.wikipedia.org/w/api.php"
+              {:query-params {:search (prep-query m)
+                              :action "opensearch"
+                              :limit 20
+                              :namespace 0
+                              :format "json"}})
+       :body
+       json/read-str
+       second))
+
 (defn bing-search [m]
   (-> (c/get "http://api.bing.com/osjson.aspx"
              {:query-params {:query (prep-query m)}}
@@ -31,13 +43,21 @@
       json/read-str
       last))
 
-(defn ddg-search [m]
-  (->> (c/get "https://duckduckgo.com/ac/"
-             {:query-params {:q (prep-query m)}})
+(defn filter-yahoo-results [m]
+  (filter #(< (:mrk %) 6) m))
+
+(defn yahoo-search [m]
+  (map
+   :key
+   (-> (c/get "http://sugg.search.yahoo.net/sg/"
+             {:query-params {:command (:query m)
+                            :nresults 20
+                            :output "json"}}
+             {:as :json})
       :body
-      (json/read-str)
-      (map vals)
-      flatten))
+      (json/read-str :key-fn keyword)
+      (get-in [:gossip :results])
+      filter-yahoo-results)))
 
 (defn amazon-search [m]
   (-> (c/get "https://completion.amazon.com/search/complete"

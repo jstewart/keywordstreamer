@@ -7,9 +7,9 @@
 (defn permutations
   [s]
   (if s
-    (map (partial str s " ")
-         (flatten [(.getFullYear (js/Date.))
-                   (seq "abcdefghijklmnopqrstuwvxyz")]))
+    (->> (seq "abcdefghijklmnopqrstuwvxyz")
+         (concat [(.getFullYear (js/Date.))])
+         (mapcat #(vector (str s " " %) (str % " " s))))
     []))
 
 (defonce event-chan (chan))
@@ -43,9 +43,9 @@
 (defn handle-permuted-search
   [{:keys [query searches]}]
   (go-loop [p (permutations query)
-            q query
-            c 1]
-    (<! (timeout (* 5000 c)))
+            q query]
+    ;; TODO sliding timeout window
+    (<! (timeout 5000))
     (when (and (seq p)
                (= query    @(subscribe [:query]))
                (= searches @(subscribe [:searches]))
@@ -53,4 +53,4 @@
       (go (>! event-chan
               [:ks/search {:query (first p)
                            :searches @(subscribe [:searches])}]))
-      (recur (rest p) query (inc c)))))
+      (recur (rest p) query))))

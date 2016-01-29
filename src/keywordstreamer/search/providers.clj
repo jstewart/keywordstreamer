@@ -5,38 +5,41 @@
             [taoensso.timbre :refer [info]])
   (:use [keywordstreamer.search.searchers]))
 
-(defn make-result-id [k s]
+(defn make-result-id [s]
   (s/lower-case
-   (str (name k) "-"
-        (s/replace s #"\W" "-"))))
+   (s/replace s #"\W" "-")))
 
-;; TODO Replace with redis
 (def C (atom (cache/ttl-cache-factory {} :ttl 900000)))
 
-(defn cache-key [k s]
-  (keyword (make-result-id k s)))
+(defn cache-key [provider suggestion]
+  (->> (make-result-id suggestion)
+       (str (name provider) "-")
+       keyword))
 
 (defn search-types [p]
-  (p {:google :web
-      :ddg    :web
-      :bing   :web
-      :amazon :shopping
-      :youtube :video}))
+  (p {:google    :web
+      :yahoo     :web
+      :bing      :web
+      :amazon    :shopping
+      :wikipedia :wikipedia
+      :youtube   :video}))
 
 (defn create-result-map [p q res]
   {:query q
    :selected false
-   :id (make-result-id p res)
+   :id (make-result-id res)
    :name res
    :search-type (search-types p)})
 
 (defn perform-search [{:keys [provider data]}]
   (let [search-fn (condp = provider
-                    :google  google-search
-                    :bing    bing-search
-                    :ddg     ddg-search
-                    :amazon  amazon-search
-                    :youtube youtube-search)]
+                    :google    google-search
+                    :wiki      wikipedia-search
+                    :bing      bing-search
+                    :yahoo     yahoo-search
+                    :amazon    amazon-search
+                    :youtube   youtube-search
+                    :wikipedia wikipedia-search)]
 
     (try
       (search-fn data)

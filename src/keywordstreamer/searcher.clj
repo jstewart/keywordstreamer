@@ -4,7 +4,7 @@
             [com.stuartsierra.component :as component]
             [keywordstreamer.search.providers :refer [start-worker]]))
 
-(def providers [:google :bing :ddg :amazon :youtube])
+(def providers [:google :bing :yahoo :amazon :youtube :wikipedia])
 
 (defn provider-workers [channels provider]
   [provider (doall

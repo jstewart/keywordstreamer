@@ -7,9 +7,10 @@
   (let [searches (->> (:searches m)
                       (filter (comp true? val))
                       keys)]
-    (-> {:web      [:google :bing :ddg]
-         :video    [:youtube]
-         :shopping [:amazon]}
+    (-> {:web       [:google :bing :yahoo]
+         :video     [:youtube]
+         :wikipedia [:wikipedia]
+         :shopping  [:amazon]}
         (select-keys searches)
         vals
         flatten)))

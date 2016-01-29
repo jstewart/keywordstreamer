@@ -14,11 +14,12 @@
            :events    (chan)
            :google    (chan)
            :bing      (chan)
-           :ddg       (chan)
+           :yahoo     (chan)
            :amazon    (chan)
            :facebook  (chan)
            :pinterest (chan)
            :youtube   (chan)
+           :wikipedia (chan)
            :shutdown  (chan)))
   (stop [this]
     (info "stopping")
@@ -29,7 +30,6 @@
     ;; (close! (:events this))
     ;; (close! (:google this))
     ;; (close! (:bing this))
-    ;; (close! (:ddg this))
     ;; (close! (:amazon this))
     ;; (close! (:facebook this))
     ;; (close! (:pinterest this))
@@ -42,11 +42,12 @@
            :events    nil
            :google    nil
            :bing      nil
-           :ddg       nil
+           :yahoo     nil
            :amazon    nil
            :facebook  nil
            :pinterest nil
            :youtube   nil
+           :wikipedia nil
            :shutdown  nil)))
 
 (defn new-channels []

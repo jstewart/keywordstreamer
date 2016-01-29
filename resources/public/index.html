@@ -28,13 +28,8 @@
     <link href="css/flat-ui.min.css" rel="stylesheet" type="text/css">
     <link href="css/style.css" rel="stylesheet" type="text/css">
   </body>
-  {% ifequal app-env "dev" %}
-  <script src="js/compiled/keywordstreamer-dev.js" type="text/javascript"></script>
-  {% else %}
   <script src="js/keywordstreamer.js" type="text/javascript"></script>
-  {% endifequal %}
   <script>
    keywordstreamer.core.main();
-   var csrf = "{{ anti-forgery-token }}";
   </script>
 </html>

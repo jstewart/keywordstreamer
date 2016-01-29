@@ -1,5 +1,6 @@
 (ns ^:figwheel-always keywordstreamer.views
-  (:require [reagent.core  :as reagent :refer [atom]]
+  (:require [goog.net.cookies]
+            [reagent.core  :as reagent :refer [atom]]
             [re-frame.core :refer [subscribe dispatch dispatch-sync]]))
 
 (defn instructions []
@@ -66,8 +67,11 @@
   (let [selected (subscribe [:selected-results])
         csv-data (subscribe [:csv-data])]
     (fn []
-      ;(when (seq @selected))
-      [:form {:on-submit #(set! (.-value (.getElementById js/document "csrf-token")) js/csrf)
+      ;;(when (seq @selected))
+
+      [:form {:on-submit #(set! (.-value (.getElementById js/document "csrf-token"))
+                                (-> (goog.net.cookies/get "csrf-token")
+                                    js/decodeURIComponent))
               :action "/download"
               :method "POST"}
        [:input {:type "hidden"

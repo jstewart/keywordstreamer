@@ -1,5 +1,6 @@
 (ns ^:figwheel-always keywordstreamer.handlers
-  (:require [cljs.core.async           :refer [>!]]
+  (:require [clojure.string :as s]
+            [cljs.core.async           :refer [>!]]
             [keywordstreamer.db        :refer [default-value]]
             [keywordstreamer.streaming :refer [event-chan handle-permuted-search]]
             [re-frame.core             :refer [register-handler path
@@ -14,6 +15,19 @@
             [:ks/search evt-data]))
     (handle-permuted-search evt-data)))
 
+;; FIXME: Maybe cljc? see make-result-id
+(defn key-ify [s]
+  (s/lower-case
+   (s/replace s #"\W" "-")))
+
+(defn result-key [{:keys [query name]}]
+  (keyword (key-ify name)))
+
+(defn create-keyword-map [results]
+  (reduce
+   #(assoc %1 (result-key %2) (dissoc %2 :id))
+   {} results))
+
 (defmulti handle-ws-event
   (fn [db [[op arg] evt]] op))
 
@@ -26,10 +40,7 @@
 
 (defmethod handle-ws-event :chsk/recv [db [[op arg] evt]]
   ;; event is embedded in the recv event
-  (let [results {:results (reduce #(assoc %1 (str (.getTime (js/Date.))
-                                                  "-" (:id %2))
-                                          (dissoc %2 :id))
-                                  {} (last arg))}]
+  (let [results {:results (-> arg last create-keyword-map)}]
     (merge-with merge db results)))
 
 (register-handler

@@ -7,30 +7,24 @@
            [compojure.route :as route]
            [environ.core :refer [env]]
            [org.httpkit.server :refer [run-server]]
-           [selmer.parser :as parser]
            [taoensso.sente :as sente]
            [taoensso.sente.server-adapters.http-kit :refer [sente-web-server-adapter]]
            [ring.util.codec :refer [url-decode]]
            [ring.middleware.logger :refer [wrap-with-logger]]
-           [ring.util.response :refer [response header content-type]])
+           [ring.util.response :refer [response resource-response
+                                       header content-type set-cookie]])
   (use ring.middleware.anti-forgery
+       ring.middleware.cookies
        ring.middleware.session
        ring.util.anti-forgery))
-
-(defn render [template & [params]]
-  (-> template
-      (parser/render-file
-       (assoc params
-              :page template))
-      response
-      (content-type "text/html; charset=utf-8")))
 
 (defn make-app-routes
   [{:keys [ajax-post-fn ajax-get-or-ws-handshake-fn]}]
   (defroutes app-routes
-    (GET "/" [] (render "public/index.html"
-                        {:anti-forgery-token *anti-forgery-token*
-                         :app-env (env :app-env)}))
+    (GET "/" []
+         (-> (resource-response "public/index.html")
+             (set-cookie "csrf-token" *anti-forgery-token*)
+             (content-type "text/html; charset=utf-8")))
     (route/resources "/")
     (GET  "/chsk" req (ajax-get-or-ws-handshake-fn req))
     (POST  "/download" [data]
@@ -43,6 +37,7 @@
 (defn make-handler
   [ws]
   (-> (make-app-routes ws)
+      wrap-cookies
       wrap-anti-forgery
       wrap-session
       wrap-with-logger
