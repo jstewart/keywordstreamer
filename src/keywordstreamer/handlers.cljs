@@ -15,19 +15,6 @@
             [:ks/search evt-data]))
     (handle-permuted-search evt-data)))
 
-;; FIXME: Maybe cljc? see make-result-id
-(defn key-ify [s]
-  (s/lower-case
-   (s/replace s #"\W" "-")))
-
-(defn result-key [{:keys [query name]}]
-  (keyword (key-ify name)))
-
-(defn create-keyword-map [results]
-  (reduce
-   #(assoc %1 (result-key %2) (dissoc %2 :id))
-   {} results))
-
 (defmulti handle-ws-event
   (fn [db [[op arg] evt]] op))
 
@@ -39,9 +26,14 @@
   (assoc db :ready? (:first-open? arg)))
 
 (defmethod handle-ws-event :chsk/recv [db [[op arg] evt]]
-  ;; event is embedded in the recv event
-  (let [results {:results (-> arg last create-keyword-map)}]
-    (merge-with merge db results)))
+  ;; The incoming results are embedded in the last item of arg
+  (let [current-results  (:results db)
+        incoming-results (-> arg last)
+        results          (->> incoming-results
+                              (filter #(not (utils/in?
+                                             (map :id current-results)
+                                             (:id %)))))]
+    (merge db {:results (concat (:results db) results)})))
 
 (register-handler
  :initialize-db
@@ -51,7 +43,7 @@
 (register-handler
  :clear-results
  (fn [db _]
-   (assoc db :results (sorted-map))))
+   (assoc db :results [])))
 
 (register-handler
  :ws-event
@@ -86,7 +78,10 @@
 (register-handler
  :toggle-selection
  (fn [db [_ id]]
-   (update-in db [:results id :selected] not)))
+   (let [{:keys [results]} db
+         filter-pred #(= id (-> % last :id))
+         idx (utils/index-of results filter-pred)]
+     (assoc db :results (update-in (vec results) [idx :selected] not)))))
 
 (register-handler
  :focus-keyword
@@ -101,11 +96,9 @@
 (register-handler
  :select-deselect-all
  (fn [db [_ selection]]
-   (let [])
-   (update-in db [:results] #())
    (assoc db
           :results
-          (utils/toggle-all (:results db) selection))))
+          (map  #(assoc % :selected selection) (:results db)))))
 
 (register-handler
  :search-type-changed
