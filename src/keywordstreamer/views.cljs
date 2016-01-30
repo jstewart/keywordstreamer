@@ -167,7 +167,7 @@
         [:th "Source"]
         [:th "Reveal"]]]
       [:tbody
-       (for [[id row] results] ^{:key id} [keyword-row id row])]]]))
+       (for [{:keys [id] :as row} results] ^{:key id} [keyword-row id row])]]]))
 
 (defn no-results []
   (let [totals (subscribe [:totals])]
@@ -183,7 +183,7 @@
        [no-results])))
 
 (defn keywordstreamer-app []
-  (let [results (subscribe [:results])]
+  (let [results (subscribe [:visible-results])]
     (fn []
       [:div
        [:div.page-header [:h1 "Keyword Streamer"]]

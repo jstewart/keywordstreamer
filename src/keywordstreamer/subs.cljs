@@ -1,11 +1,8 @@
 (ns keywordstreamer.subs
   (:require-macros [reagent.ratom :refer [reaction]])
   (:require [re-frame.core :refer [register-sub subscribe]]
-            [testdouble.cljs.csv :as csv]))
-
-(defn in?
-  [coll x]
-  (some #(= x %) coll))
+            [testdouble.cljs.csv :as csv]
+            [keywordstreamer.utils :as utils]))
 
 (register-sub
  :results
@@ -55,7 +52,7 @@
  :selected-results
  (fn [db _]
    (let [res (subscribe [:results])]
-     (reaction (filter (comp :selected last) @res)))))
+     (reaction (filter :selected @res)))))
 
 (register-sub
  :csv-data
@@ -64,7 +61,7 @@
      (reaction
       (js/encodeURIComponent
        (csv/write-csv
-        (map (comp vector :name last) @sel)))))))
+        (map (comp vector :name) @sel)))))))
 
 (register-sub
  :visible-results
@@ -77,4 +74,4 @@
      (reaction
       (doall
        (filter
-        #(in? @showing (-> % last :search-type)) @results))))))
+        #(utils/in? @showing (:search-type %)) @results))))))
