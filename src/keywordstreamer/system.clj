@@ -11,6 +11,13 @@
            [keywordstreamer.ws-events :as ws-events])
   (:gen-class))
 
+(def default-host
+  (or (env :host-ip) "127.0.0.1"))
+
+(def default-port
+  (Integer/parseInt
+   (or (env :port) "8080")))
+
 (defrecord KeywordStreamer []
   component/Lifecycle
   (start [this]
@@ -35,8 +42,8 @@
                                 [:channels :server])))
 
 (defn -main [& args]
-  (let [host (env :host-ip)
-        port (Integer/parseInt (env :port))
+  (let [host default-host
+        port default-port
         system (component/start (create-system host port))]
     (on-shutdown
      (info "interrupted! shutting down")

@@ -3,7 +3,7 @@
             [cljs.core.async           :refer [>!]]
             [keywordstreamer.db        :refer [default-value]]
             [keywordstreamer.streaming :refer [event-chan handle-permuted-search]]
-            [re-frame.core             :refer [register-handler path
+            [re-frame.core             :refer [reg-event-db path
                                                trim-v after dispatch]]
             [keywordstreamer.utils :as utils])
 
@@ -23,7 +23,7 @@
   db)
 
 (defmethod handle-ws-event :chsk/state [db [[op arg] evt]]
-  (assoc db :ready? (:first-open? arg)))
+  (assoc db :ready? (-> arg last :first-open?)))
 
 (defmethod handle-ws-event :chsk/recv [db [[op arg] evt]]
   ;; The incoming results are embedded in the last item of arg
@@ -35,34 +35,33 @@
                                              (:id %)))))]
     (merge db {:results (concat (:results db) results)})))
 
-(register-handler
+(reg-event-db
  :initialize-db
  (fn [_ _]
    default-value))
 
-(register-handler
+(reg-event-db
  :clear-results
  (fn [db _]
    (assoc db :results [])))
 
-(register-handler
+(reg-event-db
  :ws-event
  trim-v
  handle-ws-event)
 
-(register-handler
+(reg-event-db
  :query-changed
  (fn [db [_ value]]
    (dispatch [:stop-streaming])
    (assoc db :query value)))
 
-(register-handler
+(reg-event-db
  :dump-data
  (fn [db _]
-   (.log js/console (clj->js db))
    db))
 
-(register-handler
+(reg-event-db
  :submit
  (fn [db _]
    (let [{:keys [query searches streaming?]} db]
@@ -70,12 +69,12 @@
        (create-search query searches))
      (assoc db :streaming? (not streaming?)))))
 
-(register-handler
+(reg-event-db
  :stop-streaming
  (fn [db _]
    (assoc db :streaming? false)))
 
-(register-handler
+(reg-event-db
  :toggle-selection
  (fn [db [_ id]]
    (let [{:keys [results]} db
@@ -83,7 +82,7 @@
          idx (utils/index-of results filter-pred)]
      (assoc db :results (update-in (vec results) [idx :selected] not)))))
 
-(register-handler
+(reg-event-db
  :focus-keyword
  (fn [db [_ query]]
    (let [{:keys [searches]} db]
@@ -93,14 +92,14 @@
           :query query
           :streaming? true)))
 
-(register-handler
+(reg-event-db
  :select-deselect-all
  (fn [db [_ selection]]
    (assoc db
           :results
           (map  #(assoc % :selected selection) (:results db)))))
 
-(register-handler
+(reg-event-db
  :search-type-changed
  (fn [db [_ value]]
    (let [db (merge-with merge db {:searches value})]

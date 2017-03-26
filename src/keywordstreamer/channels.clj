@@ -16,25 +16,11 @@
            :bing      (chan)
            :yahoo     (chan)
            :amazon    (chan)
-           :facebook  (chan)
-           :pinterest (chan)
            :youtube   (chan)
            :wikipedia (chan)
            :shutdown  (chan)))
   (stop [this]
     (info "stopping")
-    ;; TODO Close these.
-    ;; (close! (:ws this))
-    ;; (close! (:dispatch this))
-    ;; (close! (:reap this))
-    ;; (close! (:events this))
-    ;; (close! (:google this))
-    ;; (close! (:bing this))
-    ;; (close! (:amazon this))
-    ;; (close! (:facebook this))
-    ;; (close! (:pinterest this))
-    ;; (close! (:youtube this))
-    ;; (close! (:shutdown this))
     (assoc this
            :ws        nil
            :dispatch  nil
@@ -45,7 +31,6 @@
            :yahoo     nil
            :amazon    nil
            :facebook  nil
-           :pinterest nil
            :youtube   nil
            :wikipedia nil
            :shutdown  nil)))

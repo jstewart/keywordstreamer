@@ -3,10 +3,6 @@
             [clj-http.client :as c]
             [keywordstreamer.utils :refer [?assoc char-range current-year]]))
 
-;; TODO Implement these. The suggest api is shutting down
-(defn scrape-google-for [s])
-(defn scrape-yt-for [s])
-
 (defn prep-query
   [m]
   (str (:query m) " "))

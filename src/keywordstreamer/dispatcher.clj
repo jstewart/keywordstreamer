@@ -30,7 +30,6 @@
        (recur))
       :priority true)))
 
-
 (defrecord Dispatcher [channels]
   component/Lifecycle
     (start [this]

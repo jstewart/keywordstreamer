@@ -36,7 +36,6 @@
     (chsk-send! evt 8000)
     (recur (<! event-chan))))
 
-
 ;; Each new search makes a go-loop which terminates
 ;; when current search in atom is finished or (subscribe ...)
 ;; or permutations are done
